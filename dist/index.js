@@ -7356,9 +7356,10 @@ class SkillMcpManager {
       console.log(`[skill-mcp-manager] Reusing pending connection for ${serverName}`);
       return this.pendingConnections.get(key).promise;
     }
-    console.log(`[skill-mcp-manager] MCP manager is disabled - SDK API has changed`);
+    console.log(`[skill-mcp-manager] Creating new MCP client for ${serverName}`);
+    console.log(`[skill-mcp-manager] MCP manager is disabled - SDK API has changed significantly`);
     console.log(`[skill-mcp-manager] Server: ${serverName}`);
-    throw new Error(`Skill MCP manager is temporarily disabled. Please check ${serverName} manually.`);
+    throw new Error(`Skill MCP manager is temporarily disabled. The @modelcontextprotocol/sdk v1.25+ has breaking changes. Please update to use the new API.`);
   }
   async disconnectSession(sessionID) {
     console.log(`[skill-mcp-manager] Disconnecting MCP clients for session ${sessionID}`);
@@ -7369,6 +7370,24 @@ class SkillMcpManager {
     console.log("[skill-mcp-manager] Disconnecting all MCP clients");
     this.clients.clear();
     this.pendingConnections.clear();
+  }
+  async listTools(info, context) {
+    throw new Error(`Skill MCP manager is temporarily disabled. The @modelcontextprotocol/sdk v1.25+ has breaking changes. Please update to use the new API.`);
+  }
+  async listResources(info, context) {
+    throw new Error(`Skill MCP manager is temporarily disabled. The @modelcontextprotocol/sdk v1.25+ has breaking changes. Please update to use the new API.`);
+  }
+  async listPrompts(info, context) {
+    throw new Error(`Skill MCP manager is temporarily disabled. The @modelcontextprotocol/sdk v1.25+ has breaking changes. Please update to use the new API.`);
+  }
+  async callTool(info, context, name, args) {
+    throw new Error(`Skill MCP manager is temporarily disabled. The @modelcontextprotocol/sdk v1.25+ has breaking changes. Please update to use the new API.`);
+  }
+  async readResource(info, context, uri) {
+    throw new Error(`Skill MCP manager is temporarily disabled. The @modelcontextprotocol/sdk v1.25+ has breaking changes. Please update to use the new API.`);
+  }
+  async getPrompt(info, context, name, args) {
+    throw new Error(`Skill MCP manager is temporarily disabled. The @modelcontextprotocol/sdk v1.25 has breaking changes. Please update to use the new API.`);
   }
   getConnectedServers() {
     const servers = Array.from(this.clients.keys());
