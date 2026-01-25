@@ -5,7 +5,7 @@
  * including test-first discipline and code-test correspondence.
  */
 
-import type { TddViolation, TddDecision } from './types'
+import type { TddViolation, TddDecision } from './blitzkrieg-types'
 
 /**
  * Represents the state of TDD workflow compliance

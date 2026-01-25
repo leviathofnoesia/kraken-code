@@ -22,12 +22,12 @@ export interface MatchLocation {
   context: string
 }
 
-function indexSession(sessionFilePath: string): Map<string, MatchLocation[]> | null {
+function indexSession(sessionFilePath: string): Map<string, MatchLocation> | null {
   try {
     const content = fs.readFileSync(sessionFilePath, "utf-8")
     const data = JSON.parse(content)
 
-    const index = new Map<string, MatchLocation[]>()
+    const index = new Map<string, MatchLocation>()
 
     if (data.messages && Array.isArray(data.messages)) {
       data.messages.forEach((msg: any, idx: number) => {
@@ -35,12 +35,13 @@ function indexSession(sessionFilePath: string): Map<string, MatchLocation[]> | n
         const content = msg.content || ""
 
         if (content && typeof content === "string" && content.length > 0) {
-          index.set(content, {
+          const location: MatchLocation = {
             type: role === "user" ? "user_message" : "assistant_message",
             index: idx,
             content,
             context: content,
-          })
+          }
+          index.set(content, location)
         }
       })
     }
@@ -169,6 +170,7 @@ export const session_search = tool({
               created: "",
               lastActive: "",
               messageCount: 0,
+              toolUsage: {},
             },
           },
         ]
@@ -222,11 +224,11 @@ export const session_search = tool({
           lastActive: result.metadata.lastActive,
           messageCount: result.metadata.messageCount,
           agent: result.metadata.agent,
-          matches: result.matches.map((m) => ({
-            type: m.type,
-            index: m.index,
-            content: m.content.slice(0, 200) + (m.content.length > 200 ? "..." : ""),
-          })),
+            matches: result.matches.map((m: any) => ({
+              type: m.type,
+              index: m.index,
+              content: m.content.slice(0, 200) + (m.content.length > 200 ? "..." : ""),
+            })),
         })),
       })
     } catch (error) {

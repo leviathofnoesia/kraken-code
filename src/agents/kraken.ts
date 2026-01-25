@@ -2,9 +2,19 @@ import {
   buildKeyTriggersSection,
   buildToolSelectionTable,
   buildDelegationTable,
+  buildExploreSection,
+  buildLibrarianSection,
+  buildFrontendSection,
+  buildOracleSection,
+  buildAgentPrioritySection,
+  buildHardBlocksSection,
+  buildAntiPatternsSection,
   categorizeTools,
   type AvailableSkill,
 } from "./kraken-prompt-builder"
+import type { AgentConfig } from "@opencode-ai/sdk"
+import { isGptModel } from "../utils"
+import type { AvailableAgent } from "../utils"
 
 const DEFAULT_MODEL = "anthropic/claude-opus-4-5"
 
@@ -155,7 +165,7 @@ You are here to help build good software. Focus on that.`
 export function createKrakenConfig(
   model: string = DEFAULT_MODEL,
   options?: {
-    availableAgents?: AvailableAgent[]
+    availableAgents?: any[]
     availableTools?: string[]
     availableSkills?: AvailableSkill[]
   }

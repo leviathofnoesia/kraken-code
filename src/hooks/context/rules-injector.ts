@@ -43,25 +43,25 @@ function parseRuleFrontmatter(content: string): RuleFrontmatter {
   const frontmatter = frontmatterMatch[1]
   const result: RuleFrontmatter = {}
 
-  const lines = frontmatter.split("\n")
+    const lines = frontmatter.split("\n")
 
-  for (const line of lines) {
-    const colonIndex = line.indexOf(":")
-    if (colonIndex === -1) continue
+    for (const line of lines) {
+      const colonIndex = line.indexOf(":")
+      if (colonIndex === -1) continue
 
-    const key = line.slice(0, colonIndex).trim()
-    const value = line.slice(colonIndex + 1).trim()
+      const key = line.slice(0, colonIndex).trim()
+      const value = line.slice(colonIndex + 1).trim()
 
-    if (key === "true") {
-      result.alwaysApply = true
-    } else if (key === "false") {
-      result.alwaysApply = false
-    } else if (!isNaN(Number(value))) {
-      result[key as keyof RuleFrontmatter] = Number(value)
-    } else {
-      result[key as keyof RuleFrontmatter] = value
+      if (key === "alwaysApply" && value === "true") {
+        result.alwaysApply = true
+      } else if (key === "alwaysApply" && value === "false") {
+        result.alwaysApply = false
+      } else if (key && !isNaN(Number(value))) {
+        (result as any)[key] = Number(value)
+      } else if (key) {
+        (result as any)[key] = value
+      }
     }
-  }
 
   return result
 }
@@ -298,7 +298,7 @@ ${rules}
       const newText = `${rulesText}\n\n${existingText}`
 
       output.parts = [
-        { type: "text" as const, text: newText },
+        { type: "text" as const, text: newText, id: `rule-${Date.now()}`, sessionID: "", messageID: "" },
       ]
     },
   }

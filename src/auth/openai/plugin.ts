@@ -55,7 +55,7 @@ export async function createOpenAIAuthPlugin(
   const config = options?.config ?? { enabled: true, autoRefresh: true }
 
   if (!config.enabled) {
-    return async () => ({})
+    return async () => ({}) as any
   }
 
   const storedTokens = await loadStoredTokens()
@@ -74,7 +74,7 @@ export async function createOpenAIAuthPlugin(
 
   return async () => {
     return {
-      'auth': async () => {
+      auth: async () => {
         if (!authManager) {
           console.log('[openai-auth] No valid tokens found, performing OAuth flow')
 
@@ -106,7 +106,7 @@ export async function createOpenAIAuthPlugin(
 
         return authManager
       },
-    }
+    } as any
   }
 }
 

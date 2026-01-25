@@ -1,4 +1,5 @@
-import type { Hooks, Part } from "@opencode-ai/sdk"
+import type { Hooks } from "@opencode-ai/plugin"
+import type { Part } from "@opencode-ai/sdk"
 
 export interface SessionStorageHookOptions {
   enabled?: boolean
