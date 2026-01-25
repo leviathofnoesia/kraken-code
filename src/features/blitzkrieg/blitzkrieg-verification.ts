@@ -11,7 +11,7 @@ import type {
   EvidenceConfig,
   TestEvidence,
   ViolationSeverity,
-} from './types'
+} from './blitzkrieg-types'
 import type { TestPlanState, TestPlanSummary } from './blitzkrieg-test-plan'
 import {
   generateTestPlanSummary,

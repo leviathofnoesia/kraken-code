@@ -5,7 +5,7 @@
  * and requirement enforcement within the Blitzkrieg system.
  */
 
-import type { TestCase } from './types'
+import type { TestCase } from './blitzkrieg-types'
 
 /**
  * Represents the state of a test plan for a feature

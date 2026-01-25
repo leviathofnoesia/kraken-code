@@ -1,6 +1,6 @@
 import type { AgentConfig } from "@opencode-ai/sdk"
 import type { AgentPromptMetadata } from "../types"
-import { createAgentToolRestrictions } from "../../shared/permission-compat"
+import { createAgentToolRestrictions } from "../shared/permission-compat"
 
 const DEFAULT_MODEL = "anthropic/claude-opus-4-5"
 

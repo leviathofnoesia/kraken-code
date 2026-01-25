@@ -1,29 +1,45 @@
 import type { OpenAITokens, OpenAITokenExchangeResult, OpenAIAuthConfig } from './types'
 import { isTokenExpired, refreshAccessToken } from './token'
 
+export type { OpenAIAuthConfig, OpenAITokens }
+
 export class OpenAIAuthManager {
   private config: OpenAIAuthConfig
   private refreshPromise: Promise<string> | null = null
 
-  constructor(config: OpenAIAuthConfig) {
+  constructor(config: OpenAIAuthConfig = {
+    autoRefresh: true,
+    refreshBuffer: 5 * 60 * 1000,
+    tokens: {
+      accessToken: "",
+      refreshToken: "",
+      expires_in: 0,
+      timestamp: Date.now(),
+    },
+  }) {
     this.config = {
-      autoRefresh: true,
-      refreshBuffer: 5 * 60 * 1000,
-      ...config,
+      autoRefresh: config.autoRefresh ?? true,
+      refreshBuffer: config.refreshBuffer ?? 5 * 60 * 1000,
+      tokens: config.tokens ?? {
+        accessToken: "",
+        refreshToken: "",
+        expires_in: 0,
+        timestamp: Date.now(),
+      },
     }
   }
 
   async getAccessToken(): Promise<string> {
     const { tokens, autoRefresh } = this.config
-
+    
     if (!isTokenExpired(tokens)) {
       return tokens.accessToken
     }
-
+    
     if (autoRefresh) {
       return await this.refreshToken()
     }
-
+    
     throw new Error('Access token is expired and auto-refresh is disabled')
   }
 
@@ -31,15 +47,15 @@ export class OpenAIAuthManager {
     if (this.refreshPromise) {
       return this.refreshPromise
     }
-
+    
     console.log('[openai-auth] Refreshing access token...')
-
+    
     this.refreshPromise = (async () => {
       try {
         const newTokens = await refreshAccessToken(
           this.config.tokens.refreshToken
         )
-
+        
         const tokenData: OpenAITokens = {
           accessToken: newTokens.access_token,
           refreshToken: newTokens.refresh_token,
@@ -47,9 +63,9 @@ export class OpenAIAuthManager {
           timestamp: Date.now(),
           userId: this.config.tokens.userId,
         }
-
+        
         this.config.tokens = tokenData
-
+        
         console.log('[openai-auth] Access token refreshed successfully')
         return newTokens.access_token
       } catch (error) {
@@ -59,7 +75,7 @@ export class OpenAIAuthManager {
         this.refreshPromise = null
       }
     })()
-
+    
     return this.refreshPromise
   }
 
@@ -74,4 +90,3 @@ export class OpenAIAuthManager {
     } as OpenAITokens
   }
 }
-

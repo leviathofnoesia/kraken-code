@@ -1,7 +1,7 @@
 import type { AgentConfig } from "@opencode-ai/sdk"
 import type { AgentPromptMetadata } from "../types"
-import { isGptModel } from "../types"
-import { createAgentToolRestrictions } from "../../shared/permission-compat"
+import { isGptModel } from "../utils"
+import { createAgentToolRestrictions } from "../shared/permission-compat"
 
 const DEFAULT_MODEL = "openai/gpt-5.2"
 

@@ -1,10 +1,8 @@
-# Kraken Code v5.0.0
-
-> Unified OpenCode plugin with high-density agents, advanced modes, skills, commands, and memory integration.
+# Kraken Code v1.0
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/v-5.0.0-brightgreen?labelColor=0e8fd0&style=flat-square)
+![Version](https://img.shields.io/badge/v1.0-brightgreen?labelColor=0e8fd0&style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT?labelColor=black&style=flat-square)
 ![Bun](https://img.shields.io/badge/bun-1.2%2B-white?labelColor=%231F27&style=flat-square)
 ![OpenCode](https://img.shields.io/badge/compatibility-green?label=OpenCode&style=flat-square)
@@ -13,484 +11,206 @@
 
 ---
 
-## Installation
+> **Kraken Code transforms OpenCode into an autonomous, high-density development environment.**  
+> Think of it as giving OpenCode a second brain—one that remembers context, delegates intelligently, and enforces best practices automatically.
 
-### Quick Install
+## Quick Start
 
 ```bash
-# Install via npm
-npm install kraken-code
-
-# Or with Bun
 bun install kraken-code
 ```
 
-### Alternative: curl Install Script (for non-npm/bun users)
-
-If you don't have npm or Bun installed, you can use the provided curl installer:
+Or if you don't have Bun:
 
 ```bash
-# Run the install script
-bash scripts/install-curl.sh
-
-# This script will:
-# - Download Kraken Code v5.0.0
-# - Extract to ~/.config/opencode/plugins/
-# - Verify installation
-# - Show next steps
+npm install kraken-code
 ```
 
-### Manual Installation
+That's it. Kraken Code auto-configures and integrates seamlessly.
 
-If you prefer manual installation:
+---
 
-```bash
-# 1. Create a plugin directory
-mkdir -p ~/.config/opencode/plugins
+## What Kraken Does for You
 
-# 2. Download and extract the plugin
-cd ~/.config/opencode/plugins
-curl -sSL https://registry.npmjs.org/kraken-code/-/kraken-code-5.0.0.tgz | tar -xz
+### 🧠 **Intelligent Delegation**
 
-# 3. Rename the package directory
-mv package kraken-code
+Don't do everything yourself. Kraken routes work to the right specialist automatically:
 
-# 4. Add to OpenCode configuration
-# OpenCode and plugin will be detected automatically
+- **Architecture decisions?** → Ask **Atlas** (merged Maelstrom + Leviathan expertise)
+- **Deep analysis needed?** → Deploy **Abyssal** for external research
+- **Building UI?** → Hand to **Coral** for visual precision
+- **Writing docs?** → Let **Siren** craft clear documentation
+- **Complex test failures?** → Consult **Scylla** for test strategy
+- **Infrastructure work?** → **Poseidon** handles data pipelines and CI/CD
+
+### ⚡ **Production Modes**
+
+Four expert modes that reconfigure the entire system:
+
+- **Blitzkrieg** - TDD enforcement, rapid iteration with guardrails
+- **Search** - Multi-angle codebase exploration with Nautilus auto-firing
+- **Analyze** - Deep debugging with 100+ language keyword detection
+- **Ultrathink** - Maximum reasoning budget for complex problems
+
+### 🧠 **Persistent Memory**
+
+Kratos remembers everything across sessions—conversations, decisions, code patterns. No more repeating yourself or asking the same questions.
+
+### 🛠 **Smart Tooling**
+
+- **GitHub integration** - PR/issue management, code search across repos
+- **Git integration** - Diff management, blame, commit optimization
+- **LSP superpowers** - Enhanced hover, code actions, refactoring
+- **Session search** - Find that solution from 3 sessions ago in seconds
+
+### 📋 **Built-in Commands & Skills**
+
+10+ commands (`kraken-code --help`) and dynamic skill loading from `~/.config/opencode/skill/`. Write a skill once, use it everywhere.
+
+---
+
+## Why Kraken?
+
+**OpenCode is powerful. Kraken makes it unstoppable.**
+
+| OpenCode Alone | With Kraken |
+|---------------|--------------|
+| Ask a question → forgets context | Ask a question → Kratos remembers |
+| Do work → guess what's next | Do work → Blitzkrieg enforces quality |
+| Explore → manual grep searches | Explore → Nautilus auto-fires on patterns |
+| Multi-step tasks → one-shot guessing | Multi-step tasks → Atlas breaks down properly |
+| Change scope → context bloats out | Change scope → Kratos prunes intelligently |
+
+**The Value Proposition:**
+
+1. **You work faster** - Agents handle specialized tasks while you focus on the big picture
+2. **Your code is better** - Blitzkrieg enforces TDD, Scylla validates tests
+3. **You stop repeating work** - Kratos remembers solutions, patterns, decisions
+4. **You navigate larger codebases** - Nautilus finds patterns you'd miss
+5. **You get unstuck faster** - Atlas breaks down complex problems before you start
+
+---
+
+## Core Capabilities
+
+### 🌊 **11 Sea-Themed Agents**
+
+Each agent has a personality, a specialty, and knows when to step in:
+
+```
+Kraken     → Orchestrates everything, keeps you on track
+Atlas      → Breaks down complex tasks systematically
+Nautilus   → Explores codebases, finds patterns automatically
+Abyssal    → Researches external docs, libraries, APIs
+Coral       → Builds UI with design sensibility
+Siren       → Writes clear, structured documentation
+Scylla      → Creates comprehensive tests, validates coverage
+Pearl       → Refactors for performance, readability
+Maelstrom   → First-principles reasoning for hard problems
+Leviathan  → Manages large-scale refactors, architecture
+Poseidon    → Handles infrastructure, data pipelines
 ```
 
-### Alternative: curl Install (for non-npm/bun users)
+### 🏎️ **Blitzkrieg System**
 
-If you don't have npm or Bun installed, you can install the plugin directly:
+Production-ready TDD workflow:
 
-```bash
-# 1. Create the plugin directory
-mkdir -p ~/.config/opencode/plugins
+- **Test Plan Enforcer** - No implementation without test plans
+- **TDD Workflow** - Write tests first, verify, then implement
+- **Evidence Verifier** - Requires passing tests before completion
+- **Planner Constraints** - Limits step complexity, prevents analysis paralysis
 
-# 2. Download and extract the plugin
-cd ~/.config/opencode/plugins
-curl -sSL https://registry.npmjs.org/kraken-code/-/kraken-code-5.0.0.tgz | tar -xz
+### 💾 **Session & Memory Management**
 
-# 3. Rename the package directory
-mv package kraken-code
+- **Session tools** - List, read, search sessions
+- **Kratos memory** - Save, search, query memories naturally
+- **JSONL storage** - OpenCode-compatible transcript format
+- **Todo tracking** - Persistent task tracking across sessions
 
-# 4. Add to OpenCode configuration
-# Open OpenCode and the plugin will be detected automatically
-```
+### 🔌 **MCP Integration**
 
-### Quick Start
+Built-in MCP servers:
 
-```bash
-# Launch Kraken Code CLI
-kraken-code --help
-
-# Use with OpenCode
-# Kraken Code integrates seamlessly with OpenCode's plugin system
-```
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Sea-Themed Agent System](#sea-themed-agent-system)
-- [Key Features](#key-features)
-- [Features Architecture](#features-architecture)
-- [Tools](#tools)
-- [Hooks](#hooks)
-- [Templates](#templates)
-- [Blitzkrieg System](#blitzkrieg-system)
-- [Mode System](#mode-system)
-- [Session Storage](#session-storage)
-- [Kratos Memory Integration](#kratos-memory-integration)
-- [Skills System](#skills-system)
-- [Boss Orchestrator](#boss-orchestrator)
-- [Claude Code Compatibility](#claude-code-compatibility)
-- [CLI Commands](#cli-commands)
-- [Configuration](#configuration)
-- [Troubleshooting](#troubleshooting)
-- [Architecture](#architecture)
-- [License](#license)
-
----
-
-## Overview
-
-Kraken Code is a production-ready OpenCode plugin that combines best practices into a unified, feature-rich system. It includes:
-
-- **Sea-Themed Agents**: 11 specialized agents (Kraken, Atlas, Nautilus, Abyssal, Coral, Siren, Scylla, Pearl, Maelstrom, Leviathan, Poseidon)
-- **Advanced Mode System**: 4 modes (Blitzkrieg, Search, Analyze, Ultrathink) with 100+ keywords in 15+ languages
-- **Skills System**: Dynamic skill discovery, loading, and 3 implemented built-in skills
-- **Commands System**: Multi-source command loader with 6 directory priority system
-- **Memory Integration**: Kratos MCP and session-based JSONL storage
-- **Native Integrations**: GitHub SDK, Git SDK, PR/Issue SDK
-- **Session Storage**: Comprehensive todo and transcript tracking in OpenCode-compatible format
-- **Claude Code Compatibility**: Full settings.json hooks and plugin toggles
-- **Boss Orchestrator**: Complex task coordination with parallel execution
-- **Production-Ready**: Battle-tested with comprehensive documentation
-
----
-
-## Sea-Themed Agent System
-
-Kraken Code includes 11 specialized sea-themed agents, each designed for specific tasks:
-
-| Agent | Specialty | Description |
-|--------|-----------|-------------|
-| **Kraken** | Architecture & Orchestration | Primary agent for complex architectural decisions and multi-agent coordination |
-| **Atlas** | Planning & Breakdown | Expert at breaking down complex tasks into manageable steps |
-| **Nautilus** | Shell & Infrastructure | Specializes in shell scripts, CI/CD, and infrastructure as code |
-| **Abyssal** | Deep Analysis | Performs deep code analysis, debugging, and problem investigation |
-| **Coral** | Building & Construction | Focuses on building new features and components |
-| **Siren** | Communication & Documentation | Handles API docs, README files, and user-facing content |
-| **Scylla** | Testing & Validation | Creates comprehensive tests and validates implementations |
-| **Pearl** | Refactoring & Optimization | Improves code quality, performance, and maintainability |
-| **Maelstrom** | Multi-Model Orchestration | Coordinates between different AI models for best results |
-| **Leviathan** | Large-Scale Projects | Manages large-scale refactoring and project-wide changes |
-| **Poseidon** | Data & Infrastructure | Handles databases, data pipelines, and infrastructure management |
-
-**Characteristics**:
-- Manual selection or configurable default (Kraken)
-- Sea-themed naming for memorable organization
-- Broader coverage (from planning to infrastructure to data)
-- User-configured model selection per agent
-
----
-
-## Key Features
-
-1. **Sea-themed agent system** - 11 domain-specific agents for comprehensive coverage
-2. **Blitzkrieg TDD system** - Complete test-driven development enforcement
-3. **Kratos memory** - Persistent memory storage across sessions
-4. **Native SDK integrations** - GitHub, Git, PR/Issue SDKs
-5. **Skills system** - Dynamic skill discovery and templates
-6. **Extensive hooks** - 31+ hooks for customization
-7. **CLI expansion** - install, init, status, doctor with flexible options
-8. **Zod schema validation** - Type-safe configuration
-9. **DCP context pruning** - Advanced context management
-10. **Commands system** - Built-in and custom commands
-11. **Permissive license** - MIT for maximum flexibility
-12. **LSP Integration** - Full language server protocol support
-13. **Auto Update Checker** - NPM registry checking with cache
-
----
-
-## Features Architecture
-
-**Core Philosophy**: Feature completeness, modular architecture, comprehensive tooling
-
-**Key Architectural Decisions**:
-- 11 sea-themed agents with clear specialization boundaries
-- Modular feature system (skills, commands, MCP, memory)
-- Native integrations with full SDK implementations
-- Comprehensive hook system (31+ hooks)
-- Blitzkrieg TDD enforcement system
-- Schema-based configuration with Zod validation
-
----
-
-## Tools
-
-Kraken Code includes a comprehensive set of tools:
-
-### Core Tools
-
-- `grep` - Custom grep with advanced filtering
-- `ast-grep` - AST-based code search and modification
-- `session tools` - List, read, search, and get session info
-- `compression` - Context compression for efficiency
-- `ralph-loop` - Self-referential development loop with state persistence
-
-### LSP Tools
-
-- `lsp_hover` - Get hover information (type, documentation)
-- `lsp_goto_definition` - Jump to symbol definition
-- `lsp_find_references` - Find all references to a symbol
-- `lsp_document_symbols` - Get all symbols in a document
-- `lsp_workspace_symbols` - Search workspace for symbols
-- `lsp_diagnostics` - Get diagnostics (errors, warnings) for a file
-- `lsp_prepare_rename` - Prepare to rename a symbol
-- `lsp_rename` - Rename a symbol across workspace
-- `lsp_code_actions` - Get available code actions
-- `lsp_code_action_resolve` - Resolve a code action
-- `lsp_servers` - List all available LSP servers and installation status
-
-### MCP Tools
-
-- `websearch` - Web search (Exa AI)
-- `webfetch` - Web page fetching
-- `context7-search` - Official documentation lookup
-- `context7-get` - Get specific documentation
-- `grep-search` - GitHub code search (grep.app)
-- `grep-get-file` - Get file from GitHub
-- `kratos memory tools` - memory_save, memory_search, memory_get_recent, memory_ask
-
----
-
-## Hooks
-
-**Hooks Implemented** (31+):
-
-### Core Hooks
-
-1. **Think Mode Hook** - Context-aware mode switching
-2. **Context Window Monitor** - Track and manage context usage
-3. **Ralph Loop Hook** - State persistence for development loops
-4. **Keyword Detector Hook** - Multi-language keyword detection (100+ keywords, 15+ languages)
-5. **Auto Slash Command Hook** - Automatic command injection
-6. **Rules Injector Hook** - Context rule enforcement
-7. **Agent Usage Reminder** - Track and display agent usage
-
-### Context Management
-
-8. **Anthropic Context Window Limit Recovery** - Graceful degradation on limit
-9. **Auto Update Checker Hook** - NPM registry checking with cache
-10. **Compaction Context Injector** - Context summary injection
-11. **Directory Agents Injector Hook** - Agent discovery for workspace
-12. **Directory README Injector Hook** - README-based context
-13. **Edit Error Recovery Hook** - Automatic retry on edit failures
-14. **Empty Message Sanitizer Hook** - Filter empty messages
-15. **Empty Task Response Detector Hook** - Detect and retry empty responses
-16. **Grep Output Truncator Hook** - Limit grep output size
-17. **Interactive Bash Session Hook** - Track bash sessions
-18. **Non-Interactive Env Hook** - Detect non-interactive mode
-19. **Preemptive Compaction Hook** - Proactive context compaction
-20. **Session Recovery Hook** - Recover from session failures
-21. **Thinking Block Validator Hook** - Validate thinking block format
-
-### Comment Checking
-
-22. **Comment Checker Hook** - Ensure code has comments
-
-### Blitzkrieg Hooks
-
-23. **Blitzkrieg Test Plan Enforcer** - Require test plans before implementation
-24. **Blitzkrieg TDD Workflow** - Enforce test-first development
-25. **Blitzkrieg Evidence Verifier** - Validate test evidence
-26. **Blitzkrieg Planner Constraints** - Enforce planning discipline
-
-### Additional
-
-27. **Background Agent Hook** - Manager-based background tasks
-28. **CLI Tools Hook** - Command registration and execution
-29. **Tool Output Truncator Hook** - Limit tool output size
-
----
-
-## Templates
-
-Kraken Code includes skill templates in 10 categories:
-
-- **Code Generator** - Create boilerplate code
-- **Code Analyzer** - Analyze code quality
-- **Code Simplifier** - Reduce complexity
-- **Test Generator** - Create comprehensive tests
-- **Opencode Native** - Wrap OpenCode tools
-- **Documentation** - Generate documentation
-- **Refactoring** - Suggest improvements
-- **Security Scanner** - Find vulnerabilities
-- **Performance** - Optimize performance
-
----
-
-## Blitzkrieg System
-
-**Blitzkrieg TDD System** (4 components):
-
-1. **Test Plan Enforcer** - Requires test plans before implementation
-2. **TDD Workflow** - Enforces test-first development
-3. **Evidence Verifier** - Validates test evidence before task completion
-4. **Planner Constraints** - Enforces planning discipline and complexity limits
-
----
-
-## Mode System
-
-**4 Modes with 100+ Keywords**:
-
-| Mode | Purpose | Keywords |
-|-------|---------|----------|
-| **Blitzkrieg** | TDD/Testing focus | test, tdd, unit, integration, specs |
-| **Search** | Exploration focus | find, search, explore, discovery |
-| **Analyze** | Deep analysis focus | analyze, review, audit, debug |
-| **Ultrathink** | Maximum detail focus | think, detail, explain, expand |
-
-**Multi-Language Support**: Keywords in 15+ languages including Korean, Chinese, Hindi, Arabic, Spanish, French, German, Vietnamese, Turkish, Italian, Polish, Hebrew, Indonesian, Ukrainian, Greek, Czech, Romanian, Danish, Swedish, Norwegian, Dutch, Thai, Japanese, Portuguese, Russian
-
----
-
-## Session Storage
-
-**Session Management Tools**:
-- `session_list` - List all sessions
-- `session_read` - Read session transcript
-- `session_search` - Search session content
-- `session_info` - Get session metadata
-
-**Storage Format**: OpenCode-compatible JSONL format
-
----
-
-## Kratos Memory Integration
-
-**Memory Tools**:
-- `memory_save` - Save memories with tags and importance
-- `memory_search` - Search memories by query or tags
-- `memory_get_recent` - Get recent memories
-- `memory_ask` - Natural language queries
-
-**Storage**: Persistent local storage (`~/.kratos`)
-
----
-
-## Skills System
-
-**Built-in Skills**:
-- 3 fully implemented built-in skills
-- 10 skill template categories
-- Dynamic skill discovery and hot reloading
-- Frontmatter-based skill configuration
-
----
-
-## Boss Orchestrator
-
-**Complex Task Coordination**:
-- Parallel execution support
-- Multi-agent planning
-- Task breakdown and scheduling
-
----
-
-## Claude Code Compatibility
-
-**Full Settings.json Integration**:
-- Plugin toggles
-- Settings hooks
-- Compatibility layer
-
----
-
-## CLI Commands
-
-**CLI Tool**: `kraken-code`
-
-**Commands**:
-- `install` - Install and register Kraken Code plugin
-- `init [options]` - Initialize with recommended configuration
-  - `--minimal` - Minimal setup (agents only)
-  - `--full` - Full setup (all features)
-- `status` - Show installation status
-- `doctor [options]` - Run system checks
-  - `-c, --category <category>` - Run checks for specific category
-  - `--json` - Output as JSON
-  - `-v, --verbose` - Show detailed output
-
-**Initialization Process**:
-1. Creates `~/.config/opencode/opencode.json`
-2. Configures agents, blitzkrieg, skills, kratos
-3. Installs skill templates to `~/.config/opencode/skill/`
-4. Creates Kratos storage directory
+- **Kratos** - Ultra-lean memory system
+- **Websearch** - Exa AI web search
+- **Context7** - Official documentation lookup
+- **Grep App** - GitHub code search
 
 ---
 
 ## Configuration
 
-**Config Location**:
-- `~/.config/opencode/opencode.json` (user)
+All configuration lives in `~/.config/opencode/opencode.json`:
 
-**Schema Validation**:
-- Zod schema validation
-- Generated schema: `assets/kraken-code.schema.json`
-
-**Key Config Sections**:
-- `kraken_code` - Main configuration object
-  - `agents` - Agent configuration (default, enabled)
-  - `blitzkrieg` - Blitzkrieg TDD enforcement
-  - `skills` - Skills system config
-  - `kratos` - Kratos memory config
-  - `mcp` - MCP server config
-  - `compression` - Context compression
-  - `modes` - Mode system configuration
-  - `auto_update_checker` - Auto update checker config
-
-**Schema Autocomplete**:
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/leviathofnoesia/kraken-code/main/assets/kraken-code.schema.json"
+  "kraken_code": {
+    "default_agent": "Kraken",
+    "agents": {
+      "Kraken": { "enabled": true, "model": "..." }
+    },
+    "blitzkrieg": { "enabled": true, "enforcement": "strict" },
+    "kratos": { "enabled": true, "storage_path": "~/.kratos" },
+    "modes": {
+      "blitzkrieg": { "enabled": true },
+      "ultrathink": { "enabled": true, "max_tokens": 32000 }
+    }
+  }
 }
 ```
 
+Run `kraken-code init --full` for recommended defaults.
+
 ---
 
-## Troubleshooting
+## CLI Commands
 
-### Common Issues
+```bash
+# Install Kraken Code
+kraken-code install
 
-**Plugin Not Loading**:
-1. Verify installation: `npm list kraken-code`
-2. Check OpenCode config: `~/.config/opencode/opencode.json`
-3. Restart OpenCode
+# Initialize with full setup
+kraken-code init --full
 
-**Memory Not Working**:
-1. Check Kratos storage: `~/.kratos`
-2. Verify kratos-mcp is running: Check `kraken-code doctor -c mcp`
-3. Check configuration in opencode.json
+# Check system health
+kraken-code doctor
 
-**Skills Not Loading**:
-1. Verify skill directory: `~/.config/opencode/skill/`
-2. Check skill syntax: Each skill must have SKILL.md
-3. Check for syntax errors in skill files
-
-**LSP Not Working**:
-1. Verify language server: `kraken-code doctor -c lsp`
-2. Check TypeScript: `which typescript-language-server`
-3. Verify file path: LSP tools need absolute paths
+# Show configuration
+kraken-code status
+```
 
 ---
 
 ## Architecture
 
-**Modular Feature System**:
-
 ```
-src/features/
-├── skills/                    # Skills system with built-in skills
-├── commands/                  # Commands system with multi-source loader
-├── skill-mcp-manager/         # Skill MCP connection pooling
-├── mcp/                       # Built-in MCP management
-├── storage/                    # Session storage (todos, transcripts)
-├── claude-code-compatibility/  # Claude Code compatibility layer
-├── background-agent/           # Background task system
-├── context-pruning/           # DCP engine
-├── native-integrations/       # Native SDK integrations
-└── blitzkrieg/                # Blitzkrieg TDD system
-
-src/hooks/                        # 31+ hooks for customization
-src/tools/                        # Tool implementations
-src/agents/                       # Sea-themed agent definitions
-src/config/                       # Schema and validation
+src/
+├── agents/           # 11 sea-themed agents
+├── features/
+│   ├── skills/      # Skills system with discovery & hot-reload
+│   ├── mcp/        # Built-in MCP servers
+│   ├── blitzkrieg/  # TDD enforcement system
+│   └── storage/     # Session & memory management
+├── hooks/           # 31+ hooks for extensibility
+├── tools/           # LSP, session, GitHub, Git integrations
+├── cli/             # Commands & doctor
+└── config/           # Zod schema validation
 ```
 
-Each feature module can be enabled/disabled independently through configuration.
+Each feature module can be enabled/disabled independently.
 
 ---
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-## Contributing
+<div align="center">
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+**Built for developers who want more than just an AI assistant.**
 
----
+**Built for autonomous development.**
 
-## Support
-
-- **GitHub Issues**: https://github.com/leviathofnoesia/kraken-code/issues
-- **Documentation**: See [README.md](README.md) for detailed documentation
+</div>

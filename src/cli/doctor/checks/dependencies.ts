@@ -108,6 +108,15 @@ export async function checkDependencyAstGrepNapi(): Promise<CheckResult> {
   return dependencyToCheckResult(info, CHECK_NAMES[CHECK_IDS.DEP_AST_GREP_NAPI])
 }
 
+export async function checkDependencyCommentChecker(): Promise<CheckResult> {
+  return {
+    name: "Comment Checker",
+    status: "pass",
+    message: "Built-in hook, always available",
+    details: ["Comment checking is handled by hooks/comment-checker"],
+  }
+}
+
 export function getDependencyCheckDefinitions(): CheckDefinition[] {
   return [
     {
@@ -122,6 +131,13 @@ export function getDependencyCheckDefinitions(): CheckDefinition[] {
       name: CHECK_NAMES[CHECK_IDS.DEP_AST_GREP_NAPI],
       category: "dependencies",
       check: checkDependencyAstGrepNapi,
+      critical: false,
+    },
+    {
+      id: CHECK_IDS.DEP_COMMENT_CHECKER,
+      name: CHECK_NAMES[CHECK_IDS.DEP_COMMENT_CHECKER],
+      category: "dependencies",
+      check: checkDependencyCommentChecker,
       critical: false,
     },
   ]

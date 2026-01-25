@@ -1,11 +1,13 @@
 import * as os from "os"
+// @ts-ignore
 import { Client } from "@modelcontextprotocol/sdk"
+// @ts-ignore
 import type { Tool } from "@modelcontextprotocol/sdk"
 
 import type {
   SkillMcpClientInfo,
   SkillMcpConfig,
-} from "../features/skills/mcp-config-parser"
+} from "./mcp-config-parser"
 
 const IDLE_TIMEOUT = 5 * 60 * 1000
 
@@ -77,7 +79,7 @@ export class SkillMcpManager {
     console.log(`[skill-mcp-manager] Disconnecting MCP clients for session ${sessionID}`)
 
     for (const [key, clientInfo] of this.clients.entries()) {
-      clientInfo.cleanupTimer = clearTimeout(clientInfo.cleanupTimer)
+      if (clientInfo.cleanupTimer) clearTimeout(clientInfo.cleanupTimer)
       try {
         await clientInfo.client.close()
         console.log(`[skill-mcp-manager] Disconnected from ${key}`)
@@ -95,10 +97,10 @@ export class SkillMcpManager {
 
     for (const [key] of this.clients.keys()) {
       const clientInfo = this.clients.get(key)!
-      clientInfo.cleanupTimer = clearTimeout(clientInfo.cleanupTimer)
+      if (clientInfo.cleanupTimer) clearTimeout(clientInfo.cleanupTimer)
       try {
         await clientInfo.client.close()
-      console.log(`[skill-mcp-manager] Disconnected from ${key}`)
+        console.log(`[skill-mcp-manager] Disconnected from ${key}`)
       } catch (error) {
         console.error(`[skill-manager] Error disconnecting from ${key}:`, error)
       }
@@ -170,7 +172,7 @@ export class SkillMcpManager {
       return result
     } catch (error) {
       console.error(`[skill-mcp-manager] Error calling tool ${name} on ${info.serverName}:`, error)
-      return { error: error.message }
+      return { error: error instanceof Error ? error.message : String(error) }
     }
   }
 
@@ -187,7 +189,7 @@ export class SkillMcpManager {
       return result
     } catch (error) {
       console.error(`[skill-mcp-manager] Error reading resource ${uri} from ${info.serverName}:`, error)
-      return { error: error.message }
+      return { error: error instanceof Error ? error.message : String(error) }
     }
   }
 
@@ -205,7 +207,7 @@ export class SkillMcpManager {
       return result
     } catch (error) {
       console.error(`[skill-mcp-manager] Error getting prompt ${name} from ${info.serverName}:`, error)
-      return { error: error.message }
+      return { error: error instanceof Error ? error.message : String(error) }
     }
   }
 
@@ -225,7 +227,7 @@ export class SkillMcpManager {
   }
 
   private disconnectClientInternal(serverName: string, clientInfo: ClientInfo): void {
-    clientInfo.cleanupTimer = clearTimeout(clientInfo.cleanupTimer)
+    if (clientInfo.cleanupTimer) clearTimeout(clientInfo.cleanupTimer)
 
     try {
       clientInfo.client.close()

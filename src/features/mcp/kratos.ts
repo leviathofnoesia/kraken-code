@@ -2,6 +2,10 @@ import { spawn, type ChildProcess } from "child_process"
 import * as path from "path"
 import * as os from "os"
 import * as fs from "fs"
+import { tool } from '@opencode-ai/plugin'
+import type { MCPTool } from "./types"
+
+const z = tool.schema
 
 let kratosProcess: ChildProcess | null = null
 let requestId = 0
@@ -56,7 +60,7 @@ export async function initializeKratos() {
 
   // Handle stdout (JSON-RPC responses)
   kratosProcess.stdout.on('data', (data) => {
-    const lines = data.toString().split('\n').filter(line => line.trim())
+    const lines = data.toString().split('\n').filter((line: string) => line.trim())
     for (const line of lines) {
       try {
         const response = JSON.parse(line)
@@ -105,7 +109,9 @@ async function sendKratosRequest(method: string, params: any = {}): Promise<any>
       params
     }
 
-    kratosProcess.stdin!.write(JSON.stringify(request) + '\n')
+    if (kratosProcess?.stdin) {
+      kratosProcess.stdin.write(JSON.stringify(request) + '\n')
+    }
 
     // Set timeout
     const timeout = setTimeout(() => {
@@ -124,20 +130,16 @@ async function sendKratosRequest(method: string, params: any = {}): Promise<any>
 }
 
 // Memory Save Tool
-export const memorySaveTool = {
-  name: "memory_save",
+const memorySaveToolImpl = tool({
   description: "Save a memory to Kratos project database",
-  inputSchema: {
-    type: "object",
-    properties: {
-      summary: { type: "string", description: "Short 1-2 line summary of memory" },
-      text: { type: "string", description: "Full memory content" },
-      tags: { type: "array", items: { type: "string" }, description: "Tags for categorization" },
-      paths: { type: "array", items: { type: "string" }, description: "Related file paths" },
-      importance: { type: "number", minimum: 1, maximum: 5, default: 3, description: "Importance 1-5" }
-    }
+  args: {
+    summary: z.string().describe("Short 1-2 line summary of memory"),
+    text: z.string().describe("Full memory content"),
+    tags: z.array(z.string()).describe("Tags for categorization"),
+    paths: z.array(z.string()).describe("Related file paths"),
+    importance: z.number().min(1).max(5).default(3).describe("Importance 1-5")
   },
-  handler: async (args: any) => {
+  async execute(args, context) {
     try {
       const result = await sendKratosRequest('call_tool', {
         name: 'memory_save',
@@ -150,21 +152,23 @@ export const memorySaveTool = {
       throw new Error(`Failed to save memory: ${error.message}`)
     }
   }
+})
+
+export const memorySaveTool: MCPTool = {
+  ...memorySaveToolImpl,
+  serverName: 'kratos',
+  category: 'utility'
 }
 
 // Memory Search Tool
-export const memorySearchTool = {
-  name: "memory_search",
+const memorySearchToolImpl = tool({
   description: "Search Kratos memories by query or tags",
-  inputSchema: {
-    type: "object",
-    properties: {
-      q: { type: "string", description: "Search query or keywords" },
-      k: { type: "number", default: 10, description: "Maximum results" },
-      tags: { type: "array", items: { type: "string" }, description: "Filter by tags" }
-    }
+  args: {
+    q: z.string().describe("Search query or keywords"),
+    k: z.number().default(10).describe("Maximum results"),
+    tags: z.array(z.string()).describe("Filter by tags")
   },
-  handler: async (args: any) => {
+  async execute(args, context) {
     try {
       const result = await sendKratosRequest('call_tool', {
         name: 'memory_search',
@@ -177,20 +181,22 @@ export const memorySearchTool = {
       throw new Error(`Failed to search memory: ${error.message}`)
     }
   }
+})
+
+export const memorySearchTool: MCPTool = {
+  ...memorySearchToolImpl,
+  serverName: 'kratos',
+  category: 'utility'
 }
 
 // Memory Get Recent Tool
-export const memoryGetRecentTool = {
-  name: "memory_get_recent",
+const memoryGetRecentToolImpl = tool({
   description: "Get recent memories from Kratos",
-  inputSchema: {
-    type: "object",
-    properties: {
-      k: { type: "number", default: 10, description: "Maximum results" },
-      path_prefix: { type: "string", description: "Filter by path prefix" }
-    }
+  args: {
+    k: z.number().default(10).describe("Maximum results"),
+    path_prefix: z.string().describe("Filter by path prefix")
   },
-  handler: async (args: any) => {
+  async execute(args, context) {
     try {
       const result = await sendKratosRequest('call_tool', {
         name: 'memory_get_recent',
@@ -203,20 +209,22 @@ export const memoryGetRecentTool = {
       throw new Error(`Failed to get recent memories: ${error.message}`)
     }
   }
+})
+
+export const memoryGetRecentTool: MCPTool = {
+  ...memoryGetRecentToolImpl,
+  serverName: 'kratos',
+  category: 'utility'
 }
 
 // Memory Ask Tool
-export const memoryAskTool = {
-  name: "memory_ask",
+const memoryAskToolImpl = tool({
   description: "Ask Kratos natural language questions",
-  inputSchema: {
-    type: "object",
-    properties: {
-      question: { type: "string", description: "Natural language question" },
-      limit: { type: "number", default: 5, description: "Maximum results" }
-    }
+  args: {
+    question: z.string().describe("Natural language question"),
+    limit: z.number().default(5).describe("Maximum results")
   },
-  handler: async (args: any) => {
+  async execute(args, context) {
     try {
       const result = await sendKratosRequest('call_tool', {
         name: 'memory_ask',
@@ -229,4 +237,10 @@ export const memoryAskTool = {
       throw new Error(`Failed to ask question: ${error.message}`)
     }
   }
+})
+
+export const memoryAskTool: MCPTool = {
+  ...memoryAskToolImpl,
+  serverName: 'kratos',
+  category: 'utility'
 }

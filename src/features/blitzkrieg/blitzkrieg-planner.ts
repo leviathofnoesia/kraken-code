@@ -5,7 +5,7 @@
  * step complexity limits within the Blitzkrieg system.
  */
 
-import type { PlanningConstraintViolation } from './types'
+import type { PlanningConstraintViolation } from './blitzkrieg-types'
 
 /**
  * Represents a single planning step

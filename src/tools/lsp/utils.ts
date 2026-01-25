@@ -33,7 +33,8 @@ export function findWorkspaceRoot(filePath: string): string {
     ]
     for (const marker of markers) {
       try {
-        if (Bun.file(`${path}/${marker}`).exists()) {
+        const file = Bun.file(`${path}/${marker}`)
+        if (file.size > 0) {
           return path
         }
       } catch {

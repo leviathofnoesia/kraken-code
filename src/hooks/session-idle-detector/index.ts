@@ -34,34 +34,27 @@ export function createSessionIdleDetectorHook(
   }
   
   return {
-    "chat.before": async (chatInput: any) => {
-      const { sessionID } = chatInput
-      if (!sessionID) return
-      
-      updateSessionActivity(sessionID)
-    },
-    
     "chat.message": async (chatInput: any, chatOutput: any) => {
       const { sessionID } = chatInput
       if (!sessionID) return
-      
+
       updateSessionActivity(sessionID)
-      
+
       const state = SESSION_STATES.get(sessionID)
       if (!state) return
-      
+
       const now = Date.now()
       const idleTime = now - state.lastActivity
-      
+
       if (idleTime >= config.idleTimeout) {
         if (!state.idleNotified) {
           const hasIncompleteTodos = checkForIncompleteTodos(chatOutput)
-          
+
           if (config.skipIfIncompleteTodos && hasIncompleteTodos) {
             console.log(`[session-idle-detector] Session ${sessionID} idle with incomplete todos - skipping notification`)
           } else {
             state.idleNotified = true
-            
+
             sendNotification(
               "Session Idle",
               `Session ${sessionID} has been inactive for ${Math.floor(idleTime / 60000)} minutes`,
@@ -69,15 +62,7 @@ export function createSessionIdleDetectorHook(
             )
           }
         }
-      }
-    },
-    
-    "chat.after": async (chatInput: any) => {
-      const { sessionID } = chatInput
-      if (!sessionID) return
-      
-      const state = SESSION_STATES.get(sessionID)
-      if (state) {
+      } else {
         state.idleNotified = false
       }
     },

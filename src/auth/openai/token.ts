@@ -50,27 +50,28 @@ function parseOAuthErrorPayload(text: string | undefined): ParsedOAuthError {
     return {}
   }
 
-  try {
-    const payload = JSON.parse(text) as OAuthErrorPayload
-    let code: string | undefined
+    try {
+      const payload = JSON.parse(text) as OAuthErrorPayload
+      let code: string | undefined
 
-    if (typeof payload.error === 'string') {
-      code = payload.error
-    } else if (payload.error && typeof payload.error === 'object') {
-      code = payload.error.status ?? payload.error.code
-    }
+      if (typeof payload.error === 'string') {
+        code = payload.error
+      } else if (payload.error && typeof payload.error === 'object') {
+        code = payload.error.code ?? String(payload.error.status)
+      }
 
-    return {
-      code,
-      description: payload.error_description,
+      return {
+        code,
+        description: payload.error_description,
+      }
+    } catch {
+      return { description: text }
     }
-  } catch {
-    return { description: text }
-  }
 }
 
 export function isTokenExpired(tokens: OpenAITokens): boolean {
-  const expirationTime = tokens.timestamp + (tokens.expires_in ?? 3600) * 1000
+  const expiresIn = typeof tokens.expires_in === 'number' ? tokens.expires_in : 3600
+  const expirationTime = tokens.timestamp + expiresIn * 1000
   return Date.now() >= expirationTime - OPENAI_TOKEN_REFRESH_BUFFER_MS
 }
 

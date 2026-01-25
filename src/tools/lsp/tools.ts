@@ -342,10 +342,11 @@ export const lsp_code_actions = tool({
 
       const { formatCodeActions } = await import("./utils")
 
+      const actions = Array.isArray(result) ? result : []
       return JSON.stringify({
         success: true,
-        count: result?.length || 0,
-        actions: result || [],
+        count: actions.length || 0,
+        actions: actions || [],
       })
     } catch (error) {
       return JSON.stringify({
@@ -369,12 +370,12 @@ export const lsp_code_action_resolve = tool({
         return await client.codeActionResolve(action)
       })
 
-      if (result.edit) {
-        const editResult = await applyWorkspaceEdit(result.edit)
+      if (result && typeof result === 'object' && 'edit' in result) {
+        const editResult = await applyWorkspaceEdit((result as any).edit)
         return JSON.stringify({
           success: true,
           action: result,
-          workspaceEdit: formatWorkspaceEdit(result.edit),
+          workspaceEdit: formatWorkspaceEdit((result as any).edit),
           applyResult: formatApplyResult(editResult),
         })
       }

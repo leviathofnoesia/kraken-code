@@ -6,3 +6,21 @@ export { coralAgent } from "./coral"
 export { sirenAgent } from "./siren"
 export { scyllaAgent } from "./scylla"
 export { pearlAgent } from "./pearl"
+
+import type { AgentPromptMetadata } from "../types"
+
+export interface AvailableAgent {
+  name: string
+  description: string
+  metadata: AgentPromptMetadata
+}
+
+export interface AgentConfig {
+  model?: string
+  prompts: {
+    system: string
+    user: string
+  }
+  tools?: any[]
+  hooks?: any
+}

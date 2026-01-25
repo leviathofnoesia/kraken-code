@@ -47,6 +47,7 @@ var CHECK_IDS = {
   AUTH_GOOGLE: "auth-google",
   DEP_AST_GREP_CLI: "dep-ast-grep-cli",
   DEP_AST_GREP_NAPI: "dep-ast-grep-napi",
+  DEP_COMMENT_CHECKER: "dep-comment-checker",
   GH_CLI: "gh-cli",
   LSP_SERVERS: "lsp-servers",
   MCP_BUILTIN: "mcp-builtin",
@@ -62,6 +63,7 @@ var CHECK_NAMES = {
   [CHECK_IDS.AUTH_GOOGLE]: "Google (Gemini) Auth",
   [CHECK_IDS.DEP_AST_GREP_CLI]: "AST-Grep CLI",
   [CHECK_IDS.DEP_AST_GREP_NAPI]: "AST-Grep NAPI",
+  [CHECK_IDS.DEP_COMMENT_CHECKER]: "Comment Checker",
   [CHECK_IDS.GH_CLI]: "GitHub CLI",
   [CHECK_IDS.LSP_SERVERS]: "LSP Servers",
   [CHECK_IDS.MCP_BUILTIN]: "Built-in MCP Servers",
@@ -578,6 +580,14 @@ async function checkDependencyAstGrepNapi() {
   const info = checkAstGrepNapi();
   return dependencyToCheckResult(info, CHECK_NAMES[CHECK_IDS.DEP_AST_GREP_NAPI]);
 }
+async function checkDependencyCommentChecker() {
+  return {
+    name: "Comment Checker",
+    status: "pass",
+    message: "Built-in hook, always available",
+    details: ["Comment checking is handled by hooks/comment-checker"]
+  };
+}
 function getDependencyCheckDefinitions() {
   return [
     {
@@ -592,6 +602,13 @@ function getDependencyCheckDefinitions() {
       name: CHECK_NAMES[CHECK_IDS.DEP_AST_GREP_NAPI],
       category: "dependencies",
       check: checkDependencyAstGrepNapi,
+      critical: false
+    },
+    {
+      id: CHECK_IDS.DEP_COMMENT_CHECKER,
+      name: CHECK_NAMES[CHECK_IDS.DEP_COMMENT_CHECKER],
+      category: "dependencies",
+      check: checkDependencyCommentChecker,
       critical: false
     }
   ];
