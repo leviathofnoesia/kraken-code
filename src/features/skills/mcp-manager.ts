@@ -1,9 +1,11 @@
 import * as os from "os"
 
-// @ts-ignore - MCP SDK types are complex
 import { Client } from "@modelcontextprotocol/sdk/client"
-// @ts-ignore
-import type { Tool, Resource, Prompt } from "@modelcontextprotocol/sdk/client"
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
+
+type Tool = any
+type Resource = any
+type Prompt = any
 
 import type {
   SkillMcpClientInfo,
@@ -56,7 +58,13 @@ export class SkillMcpManager {
       version: "1.0.0",
     })
 
-    await client.connect()
+    const transport = new StdioClientTransport({
+      command: info.command,
+      args: info.args,
+      env: info.env,
+    })
+
+    await client.connect(transport)
 
     const clientInfo = {
       client,
@@ -117,7 +125,8 @@ export class SkillMcpManager {
     const client = await this.getOrCreateClient(info, context)
 
     try {
-      const tools = await client.listTools() ?? []
+      const result = await client.listTools()
+      const tools = result.tools ?? []
       console.log(`[skill-mcp-manager] Listed ${tools.length} tools from ${info.serverName}`)
       return tools
     } catch (error) {
@@ -133,7 +142,8 @@ export class SkillMcpManager {
     const client = await this.getOrCreateClient(info, context)
 
     try {
-      const resources = await client.listResources() ?? []
+      const result = await client.listResources()
+      const resources = result.resources ?? []
       console.log(`[skill-mcp-manager] Listed ${resources.length} resources from ${info.serverName}`)
       return resources
     } catch (error) {
@@ -149,7 +159,8 @@ export class SkillMcpManager {
     const client = await this.getOrCreateClient(info, context)
 
     try {
-      const prompts = await client.listPrompts() ?? []
+      const result = await client.listPrompts()
+      const prompts = result.prompts ?? []
       console.log(`[skill-mcp-manager] Listed ${prompts.length} prompts from ${info.serverName}`)
       return prompts
     } catch (error) {
@@ -187,7 +198,7 @@ export class SkillMcpManager {
     const client = await this.getOrCreateClient(info, context)
 
     try {
-      const result = await client.readResource(uri)
+      const result = await client.readResource({ uri })
       console.log(`[skill-mcp-manager] Read resource ${uri} from ${info.serverName}`)
       return result
     } catch (error) {

@@ -7321,6 +7321,462 @@ var require_dist = __commonJS((exports, module) => {
   exports.default = formatsPlugin;
 });
 
+// node_modules/isexe/windows.js
+var require_windows = __commonJS((exports, module) => {
+  module.exports = isexe;
+  isexe.sync = sync;
+  var fs9 = __require("fs");
+  function checkPathExt(path11, options) {
+    var pathext = options.pathExt !== undefined ? options.pathExt : process.env.PATHEXT;
+    if (!pathext) {
+      return true;
+    }
+    pathext = pathext.split(";");
+    if (pathext.indexOf("") !== -1) {
+      return true;
+    }
+    for (var i = 0;i < pathext.length; i++) {
+      var p = pathext[i].toLowerCase();
+      if (p && path11.substr(-p.length).toLowerCase() === p) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function checkStat(stat, path11, options) {
+    if (!stat.isSymbolicLink() && !stat.isFile()) {
+      return false;
+    }
+    return checkPathExt(path11, options);
+  }
+  function isexe(path11, options, cb) {
+    fs9.stat(path11, function(er, stat) {
+      cb(er, er ? false : checkStat(stat, path11, options));
+    });
+  }
+  function sync(path11, options) {
+    return checkStat(fs9.statSync(path11), path11, options);
+  }
+});
+
+// node_modules/isexe/mode.js
+var require_mode = __commonJS((exports, module) => {
+  module.exports = isexe;
+  isexe.sync = sync;
+  var fs9 = __require("fs");
+  function isexe(path11, options, cb) {
+    fs9.stat(path11, function(er, stat) {
+      cb(er, er ? false : checkStat(stat, options));
+    });
+  }
+  function sync(path11, options) {
+    return checkStat(fs9.statSync(path11), options);
+  }
+  function checkStat(stat, options) {
+    return stat.isFile() && checkMode(stat, options);
+  }
+  function checkMode(stat, options) {
+    var mod = stat.mode;
+    var uid = stat.uid;
+    var gid = stat.gid;
+    var myUid = options.uid !== undefined ? options.uid : process.getuid && process.getuid();
+    var myGid = options.gid !== undefined ? options.gid : process.getgid && process.getgid();
+    var u = parseInt("100", 8);
+    var g = parseInt("010", 8);
+    var o = parseInt("001", 8);
+    var ug = u | g;
+    var ret = mod & o || mod & g && gid === myGid || mod & u && uid === myUid || mod & ug && myUid === 0;
+    return ret;
+  }
+});
+
+// node_modules/isexe/index.js
+var require_isexe = __commonJS((exports, module) => {
+  var fs9 = __require("fs");
+  var core;
+  if (process.platform === "win32" || global.TESTING_WINDOWS) {
+    core = require_windows();
+  } else {
+    core = require_mode();
+  }
+  module.exports = isexe;
+  isexe.sync = sync;
+  function isexe(path11, options, cb) {
+    if (typeof options === "function") {
+      cb = options;
+      options = {};
+    }
+    if (!cb) {
+      if (typeof Promise !== "function") {
+        throw new TypeError("callback not provided");
+      }
+      return new Promise(function(resolve, reject) {
+        isexe(path11, options || {}, function(er, is) {
+          if (er) {
+            reject(er);
+          } else {
+            resolve(is);
+          }
+        });
+      });
+    }
+    core(path11, options || {}, function(er, is) {
+      if (er) {
+        if (er.code === "EACCES" || options && options.ignoreErrors) {
+          er = null;
+          is = false;
+        }
+      }
+      cb(er, is);
+    });
+  }
+  function sync(path11, options) {
+    try {
+      return core.sync(path11, options || {});
+    } catch (er) {
+      if (options && options.ignoreErrors || er.code === "EACCES") {
+        return false;
+      } else {
+        throw er;
+      }
+    }
+  }
+});
+
+// node_modules/which/which.js
+var require_which = __commonJS((exports, module) => {
+  var isWindows = process.platform === "win32" || process.env.OSTYPE === "cygwin" || process.env.OSTYPE === "msys";
+  var path11 = __require("path");
+  var COLON = isWindows ? ";" : ":";
+  var isexe = require_isexe();
+  var getNotFoundError = (cmd) => Object.assign(new Error(`not found: ${cmd}`), { code: "ENOENT" });
+  var getPathInfo = (cmd, opt) => {
+    const colon = opt.colon || COLON;
+    const pathEnv = cmd.match(/\//) || isWindows && cmd.match(/\\/) ? [""] : [
+      ...isWindows ? [process.cwd()] : [],
+      ...(opt.path || process.env.PATH || "").split(colon)
+    ];
+    const pathExtExe = isWindows ? opt.pathExt || process.env.PATHEXT || ".EXE;.CMD;.BAT;.COM" : "";
+    const pathExt = isWindows ? pathExtExe.split(colon) : [""];
+    if (isWindows) {
+      if (cmd.indexOf(".") !== -1 && pathExt[0] !== "")
+        pathExt.unshift("");
+    }
+    return {
+      pathEnv,
+      pathExt,
+      pathExtExe
+    };
+  };
+  var which = (cmd, opt, cb) => {
+    if (typeof opt === "function") {
+      cb = opt;
+      opt = {};
+    }
+    if (!opt)
+      opt = {};
+    const { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt);
+    const found = [];
+    const step = (i) => new Promise((resolve, reject) => {
+      if (i === pathEnv.length)
+        return opt.all && found.length ? resolve(found) : reject(getNotFoundError(cmd));
+      const ppRaw = pathEnv[i];
+      const pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw;
+      const pCmd = path11.join(pathPart, cmd);
+      const p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
+      resolve(subStep(p, i, 0));
+    });
+    const subStep = (p, i, ii) => new Promise((resolve, reject) => {
+      if (ii === pathExt.length)
+        return resolve(step(i + 1));
+      const ext = pathExt[ii];
+      isexe(p + ext, { pathExt: pathExtExe }, (er, is) => {
+        if (!er && is) {
+          if (opt.all)
+            found.push(p + ext);
+          else
+            return resolve(p + ext);
+        }
+        return resolve(subStep(p, i, ii + 1));
+      });
+    });
+    return cb ? step(0).then((res) => cb(null, res), cb) : step(0);
+  };
+  var whichSync = (cmd, opt) => {
+    opt = opt || {};
+    const { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt);
+    const found = [];
+    for (let i = 0;i < pathEnv.length; i++) {
+      const ppRaw = pathEnv[i];
+      const pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw;
+      const pCmd = path11.join(pathPart, cmd);
+      const p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
+      for (let j = 0;j < pathExt.length; j++) {
+        const cur = p + pathExt[j];
+        try {
+          const is = isexe.sync(cur, { pathExt: pathExtExe });
+          if (is) {
+            if (opt.all)
+              found.push(cur);
+            else
+              return cur;
+          }
+        } catch (ex) {}
+      }
+    }
+    if (opt.all && found.length)
+      return found;
+    if (opt.nothrow)
+      return null;
+    throw getNotFoundError(cmd);
+  };
+  module.exports = which;
+  which.sync = whichSync;
+});
+
+// node_modules/path-key/index.js
+var require_path_key = __commonJS((exports, module) => {
+  var pathKey = (options = {}) => {
+    const environment = options.env || process.env;
+    const platform = options.platform || process.platform;
+    if (platform !== "win32") {
+      return "PATH";
+    }
+    return Object.keys(environment).reverse().find((key) => key.toUpperCase() === "PATH") || "Path";
+  };
+  module.exports = pathKey;
+  module.exports.default = pathKey;
+});
+
+// node_modules/cross-spawn/lib/util/resolveCommand.js
+var require_resolveCommand = __commonJS((exports, module) => {
+  var path11 = __require("path");
+  var which = require_which();
+  var getPathKey = require_path_key();
+  function resolveCommandAttempt(parsed, withoutPathExt) {
+    const env = parsed.options.env || process.env;
+    const cwd = process.cwd();
+    const hasCustomCwd = parsed.options.cwd != null;
+    const shouldSwitchCwd = hasCustomCwd && process.chdir !== undefined && !process.chdir.disabled;
+    if (shouldSwitchCwd) {
+      try {
+        process.chdir(parsed.options.cwd);
+      } catch (err) {}
+    }
+    let resolved;
+    try {
+      resolved = which.sync(parsed.command, {
+        path: env[getPathKey({ env })],
+        pathExt: withoutPathExt ? path11.delimiter : undefined
+      });
+    } catch (e) {} finally {
+      if (shouldSwitchCwd) {
+        process.chdir(cwd);
+      }
+    }
+    if (resolved) {
+      resolved = path11.resolve(hasCustomCwd ? parsed.options.cwd : "", resolved);
+    }
+    return resolved;
+  }
+  function resolveCommand(parsed) {
+    return resolveCommandAttempt(parsed) || resolveCommandAttempt(parsed, true);
+  }
+  module.exports = resolveCommand;
+});
+
+// node_modules/cross-spawn/lib/util/escape.js
+var require_escape = __commonJS((exports, module) => {
+  var metaCharsRegExp = /([()\][%!^"`<>&|;, *?])/g;
+  function escapeCommand(arg) {
+    arg = arg.replace(metaCharsRegExp, "^$1");
+    return arg;
+  }
+  function escapeArgument(arg, doubleEscapeMetaChars) {
+    arg = `${arg}`;
+    arg = arg.replace(/(?=(\\+?)?)\1"/g, "$1$1\\\"");
+    arg = arg.replace(/(?=(\\+?)?)\1$/, "$1$1");
+    arg = `"${arg}"`;
+    arg = arg.replace(metaCharsRegExp, "^$1");
+    if (doubleEscapeMetaChars) {
+      arg = arg.replace(metaCharsRegExp, "^$1");
+    }
+    return arg;
+  }
+  exports.command = escapeCommand;
+  exports.argument = escapeArgument;
+});
+
+// node_modules/shebang-regex/index.js
+var require_shebang_regex = __commonJS((exports, module) => {
+  module.exports = /^#!(.*)/;
+});
+
+// node_modules/shebang-command/index.js
+var require_shebang_command = __commonJS((exports, module) => {
+  var shebangRegex = require_shebang_regex();
+  module.exports = (string3 = "") => {
+    const match = string3.match(shebangRegex);
+    if (!match) {
+      return null;
+    }
+    const [path11, argument] = match[0].replace(/#! ?/, "").split(" ");
+    const binary = path11.split("/").pop();
+    if (binary === "env") {
+      return argument;
+    }
+    return argument ? `${binary} ${argument}` : binary;
+  };
+});
+
+// node_modules/cross-spawn/lib/util/readShebang.js
+var require_readShebang = __commonJS((exports, module) => {
+  var fs9 = __require("fs");
+  var shebangCommand = require_shebang_command();
+  function readShebang(command) {
+    const size = 150;
+    const buffer = Buffer.alloc(size);
+    let fd;
+    try {
+      fd = fs9.openSync(command, "r");
+      fs9.readSync(fd, buffer, 0, size, 0);
+      fs9.closeSync(fd);
+    } catch (e) {}
+    return shebangCommand(buffer.toString());
+  }
+  module.exports = readShebang;
+});
+
+// node_modules/cross-spawn/lib/parse.js
+var require_parse = __commonJS((exports, module) => {
+  var path11 = __require("path");
+  var resolveCommand = require_resolveCommand();
+  var escape2 = require_escape();
+  var readShebang = require_readShebang();
+  var isWin = process.platform === "win32";
+  var isExecutableRegExp = /\.(?:com|exe)$/i;
+  var isCmdShimRegExp = /node_modules[\\/].bin[\\/][^\\/]+\.cmd$/i;
+  function detectShebang(parsed) {
+    parsed.file = resolveCommand(parsed);
+    const shebang = parsed.file && readShebang(parsed.file);
+    if (shebang) {
+      parsed.args.unshift(parsed.file);
+      parsed.command = shebang;
+      return resolveCommand(parsed);
+    }
+    return parsed.file;
+  }
+  function parseNonShell(parsed) {
+    if (!isWin) {
+      return parsed;
+    }
+    const commandFile = detectShebang(parsed);
+    const needsShell = !isExecutableRegExp.test(commandFile);
+    if (parsed.options.forceShell || needsShell) {
+      const needsDoubleEscapeMetaChars = isCmdShimRegExp.test(commandFile);
+      parsed.command = path11.normalize(parsed.command);
+      parsed.command = escape2.command(parsed.command);
+      parsed.args = parsed.args.map((arg) => escape2.argument(arg, needsDoubleEscapeMetaChars));
+      const shellCommand = [parsed.command].concat(parsed.args).join(" ");
+      parsed.args = ["/d", "/s", "/c", `"${shellCommand}"`];
+      parsed.command = process.env.comspec || "cmd.exe";
+      parsed.options.windowsVerbatimArguments = true;
+    }
+    return parsed;
+  }
+  function parse(command, args, options) {
+    if (args && !Array.isArray(args)) {
+      options = args;
+      args = null;
+    }
+    args = args ? args.slice(0) : [];
+    options = Object.assign({}, options);
+    const parsed = {
+      command,
+      args,
+      options,
+      file: undefined,
+      original: {
+        command,
+        args
+      }
+    };
+    return options.shell ? parsed : parseNonShell(parsed);
+  }
+  module.exports = parse;
+});
+
+// node_modules/cross-spawn/lib/enoent.js
+var require_enoent = __commonJS((exports, module) => {
+  var isWin = process.platform === "win32";
+  function notFoundError(original, syscall) {
+    return Object.assign(new Error(`${syscall} ${original.command} ENOENT`), {
+      code: "ENOENT",
+      errno: "ENOENT",
+      syscall: `${syscall} ${original.command}`,
+      path: original.command,
+      spawnargs: original.args
+    });
+  }
+  function hookChildProcess(cp, parsed) {
+    if (!isWin) {
+      return;
+    }
+    const originalEmit = cp.emit;
+    cp.emit = function(name, arg1) {
+      if (name === "exit") {
+        const err = verifyENOENT(arg1, parsed);
+        if (err) {
+          return originalEmit.call(cp, "error", err);
+        }
+      }
+      return originalEmit.apply(cp, arguments);
+    };
+  }
+  function verifyENOENT(status, parsed) {
+    if (isWin && status === 1 && !parsed.file) {
+      return notFoundError(parsed.original, "spawn");
+    }
+    return null;
+  }
+  function verifyENOENTSync(status, parsed) {
+    if (isWin && status === 1 && !parsed.file) {
+      return notFoundError(parsed.original, "spawnSync");
+    }
+    return null;
+  }
+  module.exports = {
+    hookChildProcess,
+    verifyENOENT,
+    verifyENOENTSync,
+    notFoundError
+  };
+});
+
+// node_modules/cross-spawn/index.js
+var require_cross_spawn = __commonJS((exports, module) => {
+  var cp = __require("child_process");
+  var parse = require_parse();
+  var enoent = require_enoent();
+  function spawn3(command, args, options) {
+    const parsed = parse(command, args, options);
+    const spawned = cp.spawn(parsed.command, parsed.args, parsed.options);
+    enoent.hookChildProcess(spawned, parsed);
+    return spawned;
+  }
+  function spawnSync(command, args, options) {
+    const parsed = parse(command, args, options);
+    const result = cp.spawnSync(parsed.command, parsed.args, parsed.options);
+    result.error = result.error || enoent.verifyENOENTSync(result.status, parsed);
+    return result;
+  }
+  module.exports = spawn3;
+  module.exports.spawn = spawn3;
+  module.exports.sync = spawnSync;
+  module.exports._parse = parse;
+  module.exports._enoent = enoent;
+});
+
 // src/agents/kraken-prompt-builder.ts
 function categorizeTools(toolNames) {
   return toolNames.map((name) => {
@@ -16173,6 +16629,188 @@ class Client extends Protocol {
   }
 }
 
+// node_modules/@modelcontextprotocol/sdk/dist/esm/client/stdio.js
+var import_cross_spawn = __toESM(require_cross_spawn(), 1);
+import process2 from "node:process";
+import { PassThrough } from "node:stream";
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+class ReadBuffer {
+  append(chunk) {
+    this._buffer = this._buffer ? Buffer.concat([this._buffer, chunk]) : chunk;
+  }
+  readMessage() {
+    if (!this._buffer) {
+      return null;
+    }
+    const index = this._buffer.indexOf(`
+`);
+    if (index === -1) {
+      return null;
+    }
+    const line = this._buffer.toString("utf8", 0, index).replace(/\r$/, "");
+    this._buffer = this._buffer.subarray(index + 1);
+    return deserializeMessage(line);
+  }
+  clear() {
+    this._buffer = undefined;
+  }
+}
+function deserializeMessage(line) {
+  return JSONRPCMessageSchema.parse(JSON.parse(line));
+}
+function serializeMessage(message) {
+  return JSON.stringify(message) + `
+`;
+}
+
+// node_modules/@modelcontextprotocol/sdk/dist/esm/client/stdio.js
+var DEFAULT_INHERITED_ENV_VARS = process2.platform === "win32" ? [
+  "APPDATA",
+  "HOMEDRIVE",
+  "HOMEPATH",
+  "LOCALAPPDATA",
+  "PATH",
+  "PROCESSOR_ARCHITECTURE",
+  "SYSTEMDRIVE",
+  "SYSTEMROOT",
+  "TEMP",
+  "USERNAME",
+  "USERPROFILE",
+  "PROGRAMFILES"
+] : ["HOME", "LOGNAME", "PATH", "SHELL", "TERM", "USER"];
+function getDefaultEnvironment() {
+  const env = {};
+  for (const key of DEFAULT_INHERITED_ENV_VARS) {
+    const value = process2.env[key];
+    if (value === undefined) {
+      continue;
+    }
+    if (value.startsWith("()")) {
+      continue;
+    }
+    env[key] = value;
+  }
+  return env;
+}
+
+class StdioClientTransport {
+  constructor(server) {
+    this._readBuffer = new ReadBuffer;
+    this._stderrStream = null;
+    this._serverParams = server;
+    if (server.stderr === "pipe" || server.stderr === "overlapped") {
+      this._stderrStream = new PassThrough;
+    }
+  }
+  async start() {
+    if (this._process) {
+      throw new Error("StdioClientTransport already started! If using Client class, note that connect() calls start() automatically.");
+    }
+    return new Promise((resolve, reject) => {
+      this._process = import_cross_spawn.default(this._serverParams.command, this._serverParams.args ?? [], {
+        env: {
+          ...getDefaultEnvironment(),
+          ...this._serverParams.env
+        },
+        stdio: ["pipe", "pipe", this._serverParams.stderr ?? "inherit"],
+        shell: false,
+        windowsHide: process2.platform === "win32" && isElectron(),
+        cwd: this._serverParams.cwd
+      });
+      this._process.on("error", (error) => {
+        reject(error);
+        this.onerror?.(error);
+      });
+      this._process.on("spawn", () => {
+        resolve();
+      });
+      this._process.on("close", (_code) => {
+        this._process = undefined;
+        this.onclose?.();
+      });
+      this._process.stdin?.on("error", (error) => {
+        this.onerror?.(error);
+      });
+      this._process.stdout?.on("data", (chunk) => {
+        this._readBuffer.append(chunk);
+        this.processReadBuffer();
+      });
+      this._process.stdout?.on("error", (error) => {
+        this.onerror?.(error);
+      });
+      if (this._stderrStream && this._process.stderr) {
+        this._process.stderr.pipe(this._stderrStream);
+      }
+    });
+  }
+  get stderr() {
+    if (this._stderrStream) {
+      return this._stderrStream;
+    }
+    return this._process?.stderr ?? null;
+  }
+  get pid() {
+    return this._process?.pid ?? null;
+  }
+  processReadBuffer() {
+    while (true) {
+      try {
+        const message = this._readBuffer.readMessage();
+        if (message === null) {
+          break;
+        }
+        this.onmessage?.(message);
+      } catch (error) {
+        this.onerror?.(error);
+      }
+    }
+  }
+  async close() {
+    if (this._process) {
+      const processToClose = this._process;
+      this._process = undefined;
+      const closePromise = new Promise((resolve) => {
+        processToClose.once("close", () => {
+          resolve();
+        });
+      });
+      try {
+        processToClose.stdin?.end();
+      } catch {}
+      await Promise.race([closePromise, new Promise((resolve) => setTimeout(resolve, 2000).unref())]);
+      if (processToClose.exitCode === null) {
+        try {
+          processToClose.kill("SIGTERM");
+        } catch {}
+        await Promise.race([closePromise, new Promise((resolve) => setTimeout(resolve, 2000).unref())]);
+      }
+      if (processToClose.exitCode === null) {
+        try {
+          processToClose.kill("SIGKILL");
+        } catch {}
+      }
+    }
+    this._readBuffer.clear();
+  }
+  send(message) {
+    return new Promise((resolve) => {
+      if (!this._process?.stdin) {
+        throw new Error("Not connected");
+      }
+      const json = serializeMessage(message);
+      if (this._process.stdin.write(json)) {
+        resolve();
+      } else {
+        this._process.stdin.once("drain", resolve);
+      }
+    });
+  }
+}
+function isElectron() {
+  return "type" in process2;
+}
+
 // src/features/skills/mcp-manager.ts
 var IDLE_TIMEOUT = 5 * 60 * 1000;
 
@@ -16197,7 +16835,12 @@ class SkillMcpManager {
       name: serverName,
       version: "1.0.0"
     });
-    await client2.connect();
+    const transport = new StdioClientTransport({
+      command: info.command,
+      args: info.args,
+      env: info.env
+    });
+    await client2.connect(transport);
     const clientInfo = {
       client: client2,
       lastUsed: Date.now(),
@@ -16244,7 +16887,8 @@ class SkillMcpManager {
   async listTools(info, context) {
     const client2 = await this.getOrCreateClient(info, context);
     try {
-      const tools2 = await client2.listTools() ?? [];
+      const result = await client2.listTools();
+      const tools2 = result.tools ?? [];
       console.log(`[skill-mcp-manager] Listed ${tools2.length} tools from ${info.serverName}`);
       return tools2;
     } catch (error) {
@@ -16255,7 +16899,8 @@ class SkillMcpManager {
   async listResources(info, context) {
     const client2 = await this.getOrCreateClient(info, context);
     try {
-      const resources = await client2.listResources() ?? [];
+      const result = await client2.listResources();
+      const resources = result.resources ?? [];
       console.log(`[skill-mcp-manager] Listed ${resources.length} resources from ${info.serverName}`);
       return resources;
     } catch (error) {
@@ -16266,7 +16911,8 @@ class SkillMcpManager {
   async listPrompts(info, context) {
     const client2 = await this.getOrCreateClient(info, context);
     try {
-      const prompts = await client2.listPrompts() ?? [];
+      const result = await client2.listPrompts();
+      const prompts = result.prompts ?? [];
       console.log(`[skill-mcp-manager] Listed ${prompts.length} prompts from ${info.serverName}`);
       return prompts;
     } catch (error) {
@@ -16291,7 +16937,7 @@ class SkillMcpManager {
   async readResource(info, context, uri) {
     const client2 = await this.getOrCreateClient(info, context);
     try {
-      const result = await client2.readResource(uri);
+      const result = await client2.readResource({ uri });
       console.log(`[skill-mcp-manager] Read resource ${uri} from ${info.serverName}`);
       return result;
     } catch (error) {
