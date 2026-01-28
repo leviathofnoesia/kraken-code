@@ -326,7 +326,7 @@ export class SkillLoader {
 | **Memory System** | Kratos persistent memory |
 | **CLI Commands** | install, init, status, doctor |
 | **Configuration** | Zod validation, centralized |
-| **File-based Hooks** | No (code-based) |
+| **File-based Hooks** | ✅ Yes (all hooks in `src/hooks/`) |
 | **Data Persistence** | Kratos storage |
 | **Native Integrations** | GitHub SDK, Git SDK, PR/Issue SDK |
 | **Background Agents** | Yes, manager-based |
