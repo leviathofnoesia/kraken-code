@@ -6,23 +6,13 @@
  * state machines, and learning statistics.
  */
 
-import type { ExperienceStore } from "../../features/learning/experience-store"
-import type { KnowledgeGraphStore } from "../../features/learning/knowledge-graph"
-import type { PatternDetector } from "../../features/learning/pattern-detection"
-import type { StateMachineEngine } from "../../features/learning/state-machine"
+import type { LearningToolsConfig } from "../../types/learning-context"
 
 import { createExperienceTool } from "./learning-experience"
 import { createKnowledgeTool } from "./learning-knowledge"
 import { createPatternTool } from "./learning-pattern"
 import { createFsmTool } from "./learning-fsm"
 import { createStatsTool } from "./learning-stats"
-
-interface LearningToolsConfig {
-  experienceStore: ExperienceStore
-  knowledgeGraph: KnowledgeGraphStore
-  patternDetector: PatternDetector
-  stateMachine: StateMachineEngine
-}
 
 /**
  * Initialize all learning tools

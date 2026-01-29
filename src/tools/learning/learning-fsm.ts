@@ -103,11 +103,10 @@ export function createFsmTool(stateMachine: StateMachineEngine) {
               machine: {
                 id: machine.id,
                 name: machine.name,
-                description: machine.description,
                 currentState: machine.currentState,
                 stateCount: Object.keys(machine.states).length,
-                states: Object.entries(machine.states).map(([name, state]: [string, any]) => ({
-                  name,
+                states: Object.entries(machine.states).map(([stateName, state]: [string, any]) => ({
+                  name: stateName,
                   description: state.description,
                   transitionCount: state.transitions?.length || 0
                 }))
@@ -124,7 +123,6 @@ export function createFsmTool(stateMachine: StateMachineEngine) {
               machines: machines.map((m: any) => ({
                 id: m.id,
                 name: m.name,
-                description: m.description,
                 currentState: m.currentState,
                 stateCount: Object.keys(m.states).length
               }))
