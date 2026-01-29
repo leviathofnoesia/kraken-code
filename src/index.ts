@@ -196,7 +196,13 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
       if (!newConfig.agent) newConfig.agent = {};
       const agents = getSeaThemedAgents();
       for (const [name, agentConfig] of Object.entries(agents)) {
-        if (!newConfig.agent[name]) newConfig.agent[name] = agentConfig;
+        if (!newConfig.agent[name]) {
+          console.log(`[kraken-code] Injecting agent: ${name}, has permission:`, !!agentConfig.permission);
+          if (agentConfig.permission) {
+            console.log(`[kraken-code]   Agent ${name} permission keys:`, Object.keys(agentConfig.permission));
+          }
+          newConfig.agent[name] = agentConfig;
+        }
       }
       if (!newConfig.default_agent && newConfig.agent["Kraken"]) newConfig.default_agent = "Kraken";
 
@@ -243,6 +249,7 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
 
           // Replace with sanitized permission object
           agent.permission = cleanPermission;
+          console.log(`[kraken-code] Sanitized ${agentName} permission:`, JSON.stringify(agent.permission, null, 2));
         }
       }
 
