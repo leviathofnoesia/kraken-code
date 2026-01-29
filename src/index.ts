@@ -202,16 +202,21 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
 
       // Sanitize agent permissions to prevent ruleset validation errors
       // This fixes "Invalid option: expected one of 'allow'|'deny'|'ask'" at ruleset[12] and ruleset[14]
+      const defaultPermissions = {
+        edit: "ask",
+        bash: "ask",
+        webfetch: "ask",
+        doom_loop: "ask",
+        external_directory: "ask",
+      };
+      
       for (const agentName of Object.keys(newConfig.agent)) {
         const agent = newConfig.agent[agentName];
         if (agent && !agent.permission) {
-          // Add default permissions if missing
+          // Merge default permissions into existing agent config
           agent.permission = {
-            edit: "ask",
-            bash: "ask",
-            webfetch: "ask",
-            doom_loop: "ask",
-            external_directory: "ask"
+            ...defaultPermissions,
+            ...(agent.permission || {}),
           };
         }
       }
