@@ -17,7 +17,7 @@ Invalid option: expected one of "allow"|"deny"|"ask"` at `ruleset[12]` and `rule
 
 The `ruleset` is **OpenCode's internal configuration array** for validating tool/agent permissions. Each entry represents a permission rule with:
 - `tool` or `agent` identifier
-- `action` value: "allow", "deny", or "ask"
+- `action` value: `allow`, `deny`, or `ask`
 
 Indices 12 and 14 have invalid `action` values.
 
