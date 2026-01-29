@@ -31,7 +31,6 @@ const learningFsmToolImpl = tool({
     initialState: z.string().optional().describe("Starting state. Required for 'create'."),
     states: z.record(z.any()).optional().describe("State definitions (JSON). Required for 'create'."),
     // Transition args
-    toState: z.string().optional().describe("Target state. Required for 'transition'."),
     trigger: z.string().optional().describe("What caused the transition. Required for 'transition'."),
     reward: z.number().min(-1).max(1).optional().describe("Reward for this transition. Optional."),
     // Get/List args
@@ -90,19 +89,30 @@ async function performTransition(args: { toState: string; trigger: string; rewar
     throw new Error("Missing required fields for 'transition': toState, trigger")
   }
 
-  const result = stateMachine!.transition(
-    "default", // Use default machine
-    args.toState,
-    args.trigger,
-    args.reward
-  )
+  // Use async transition API
+  const success = await stateMachine!.transition(args.trigger)
+
+  if (!success) {
+    return `❌ State transition failed\n\n` +
+           `Trigger: ${args.trigger}\n` +
+           `No matching transition found from current state`
+  }
+
+  const machine = stateMachine!.getMachine("default")
+  if (!machine) {
+    return "State machine not found"
+  }
+
+  const lastTransition = machine.history.length > 0
+    ? machine.history[machine.history.length - 1]
+    : null
 
   return `✅ State transition\n\n` +
-         `Previous state: ${result.previousState}\n` +
-         `New state: ${result.currentState}\n` +
+         `Previous state: ${lastTransition?.fromState || "N/A"}\n` +
+         `New state: ${machine.currentState}\n` +
          `Trigger: ${args.trigger}\n` +
          (args.reward !== undefined ? `Reward: ${args.reward.toFixed(2)}\n` : "") +
-         `Time: ${new Date(result.timestamp).toLocaleString()}`
+         `Time: ${lastTransition?.timestamp ? new Date(lastTransition.timestamp).toLocaleString() : new Date().toLocaleString()}`
 }
 
 async function getMachine(args: { targetMachineId: string }): Promise<string> {
