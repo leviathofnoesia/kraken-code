@@ -39,7 +39,7 @@ export interface MCPTool extends ToolDefinition {
   /**
    * Tool category for organization
    */
-  category: 'search' | 'documentation' | 'code' | 'utility';
+  category: 'search' | 'documentation' | 'code' | 'utility' | 'learning';
 
   /**
    * Rate limit (max requests per minute)

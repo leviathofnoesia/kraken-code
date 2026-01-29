@@ -197,6 +197,12 @@ export class StateMachineEngine {
       }
     }
 
+    // Verify target state exists in machine.states before transitioning
+    if (!machine.states[matchedTransition.toState]) {
+      console.error(`[StateMachine] Target state '${matchedTransition.toState}' does not exist in machine. Cannot transition.`)
+      return false
+    }
+
     // Execute exit action if exists
     const currentStateDef = machine.states[currentState]
     if (currentStateDef?.onExit) {
@@ -243,7 +249,12 @@ export class StateMachineEngine {
       return trigger.toLowerCase().includes(transition.toolMethod.toLowerCase())
     }
 
-    // Otherwise, check if trigger matches any defined condition
+    // If fromState is undefined/null/empty, treat as unconditional (always match)
+    if (!transition.fromState || transition.fromState === "") {
+      return true
+    }
+
+    // Otherwise, check if trigger matches fromState exactly or contains it
     return trigger === transition.fromState || trigger.includes(transition.fromState)
   }
 
@@ -283,7 +294,15 @@ export class StateMachineEngine {
    * Analyze context to determine state
    */
   private analyzeContextForState(context: any, currentState: string): string | null {
-    const contextStr = JSON.stringify(context).toLowerCase()
+    let contextStr: string
+
+    try {
+      contextStr = JSON.stringify(context).toLowerCase()
+    } catch (error: any) {
+      // Fallback if JSON.stringify fails (e.g., circular structures)
+      console.error(`[StateMachine] Failed to stringify context:`, error)
+      contextStr = String(context).toLowerCase()
+    }
 
     // Common state detection rules
     const stateRules: Record<string, RegExp[]> = {

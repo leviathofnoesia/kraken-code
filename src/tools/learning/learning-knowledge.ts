@@ -203,7 +203,6 @@ async function getNeighbors(args: {
 async function findPath(args: {
   fromId: string
   toId: string
-  maxDepth?: number
 }): Promise<string> {
   if (!args.fromId || !args.toId) {
     throw new Error("Missing required fields for 'path': fromId, toId")
@@ -215,7 +214,10 @@ async function findPath(args: {
     return `No path found between ${args.fromId} and ${args.toId}`
   }
 
-  let output = `**Path found** (${path.length} hops):\n\n`
+  // Calculate hops (path.length - 1)
+  const hops = path.length - 1
+  let output = `**Path found** (${hops} hop${hops !== 1 ? "s" : ""}):\n\n`
+
   output += path.map((node, i) => {
     const arrow = i < path.length - 1 ? " → " : ""
     return `${i + 1}. **${node.id}**${arrow}`
@@ -241,19 +243,20 @@ async function addNode(args: {
     args.newNodeId,
     args.newNodeType,
     args.newData,
+
+  const node = await knowledgeGraph!.addNode(
+    args.newNodeId,
+    args.newNodeType,
+    args.newData,
     "manual"
   )
 
-  return `✅ Node created\n\n` +
+  return "✅ Node created\n\n" +
          `ID: ${node.id}\n` +
          `Type: ${node.type}\n` +
          `Created: ${new Date(node.metadata.created).toLocaleString()}\n\n` +
-         `*Use 'learning_knowledge' with action='get' to view full details.*`
+         "*Use 'learning_knowledge' with action='get' to view full details.*"
 }
-
-/**
- * Get knowledge graph statistics
- */
 async function getStats(): Promise<string> {
   const allNodes = knowledgeGraph!.getAllNodes()
   const allEdges = knowledgeGraph!.getAllEdges()
