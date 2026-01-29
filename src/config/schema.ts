@@ -290,6 +290,7 @@ export const LearningSystemConfigSchema = z.object({
 
 export const OpenCodeXConfigSchema = z.object({
   $schema: z.string().optional(),
+  kraken_code: z.record(z.string(), z.any()).optional(),
   disabled_hooks: z.array(OpenCodeXHookNameSchema).optional(),
   disabled_commands: z.array(OpenCodeXBuiltinCommandNameSchema).optional(),
   agents: AgentOverridesSchema.optional(),

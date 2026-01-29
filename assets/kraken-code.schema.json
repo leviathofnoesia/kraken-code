@@ -8,6 +8,13 @@
     "$schema": {
       "type": "string"
     },
+    "kraken_code": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {}
+    },
     "disabled_hooks": {
       "type": "array",
       "items": {
