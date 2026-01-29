@@ -22,19 +22,33 @@ export {
 export {
   createContextInjectorHook,
   type ContextInjectorHookOptions
+,24,38c
 } from "./context-injector-hook"
+,24,38c
 
+,24,38c
 export {
+,24,38c
   createSynthesisTriggerHook,
+,24,38c
   type SynthesisTriggerHookOptions
+,24,38c
 } from "./synthesis-trigger-hook"
+,24,38c
 
+,24,38c
 /**
+,24,38c
  * Create all learning hooks at once
+,24,38c
  *
+,24,38c
  * This is the main entry point for integrating learning system
+,24,38c
  * into Kraken-Code via hooks.
+,24,38c
  */
+,24,38c
 export function createLearningHooks(
   input: PluginInput,
   context: LearningSystemContext,
