@@ -22687,7 +22687,25 @@ var builtinTools = {
   "call-kraken-agent": call_kraken_agent
 };
 var createOpenCodeXPlugin = async (input) => {
-  const config2 = input.config || {};
+  const inputConfig = input.config || {};
+  let krakenConfig = inputConfig.kraken_code;
+  if (!krakenConfig) {
+    try {
+      const fs17 = await import("node:fs/promises");
+      const path19 = await import("path");
+      const os12 = await import("os");
+      const krakenConfigPath = path19.default.join(os12.default.homedir(), ".config", "opencode", "kraken-code.json");
+      const configContent = await fs17.default.readFile(krakenConfigPath, "utf-8");
+      krakenConfig = JSON.parse(configContent);
+      console.log("[kraken-code] Loaded config from kraken-code.json");
+    } catch (e) {
+      krakenConfig = {};
+    }
+  }
+  if (!inputConfig.kraken_code && krakenConfig) {
+    inputConfig.kraken_code = krakenConfig;
+  }
+  const config2 = inputConfig;
   const hooks = [];
   console.log("[kraken-code] Initializing plugin...");
   const modeHooks = createModeHooks(input, {
