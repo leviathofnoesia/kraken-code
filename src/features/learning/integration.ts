@@ -10,11 +10,11 @@ import * as path from "path"
 import * as os from "os"
 
 // Import learning system components
-import { ExperienceStore } from "../experience-store"
-import { KnowledgeGraphStore } from "../knowledge-graph"
-import { PatternDetector } from "../pattern-detection"
-import { StateMachineEngine } from "../state-machine"
-import { FSRScheduler } from "../fsrs-scheduler"
+import { ExperienceStore } from "./experience-store"
+import { KnowledgeGraphStore } from "./knowledge-graph"
+import { PatternDetector } from "./pattern-detection"
+import { StateMachineEngine } from "./state-machine"
+import { FSRScheduler } from "./fsrs-scheduler"
 
 // Import unified context type
 import type { LearningSystemContext, LearningHooksConfig } from "../../types/learning-context"
@@ -117,9 +117,12 @@ export function initializeLearningSystem(
   console.log("[LearningSystem] Initializing unified AI memory system...")
   console.log(`[LearningSystem] Storage path: ${mergedConfig.storagePath}`)
 
+  // Storage path is guaranteed by defaults above
+  const storagePath = mergedConfig.storagePath!
+
   // Initialize all four layers
   const experienceStore = new ExperienceStore(
-    mergedConfig.storagePath,
+    storagePath,
     {
       maxBufferSize: mergedConfig.experienceStore?.bufferSize || 1000,
       maxAgeDays: mergedConfig.experienceStore?.maxAgeDays || 90
@@ -127,14 +130,14 @@ export function initializeLearningSystem(
   )
 
   const knowledgeGraph = new KnowledgeGraphStore(
-    mergedConfig.storagePath,
+    storagePath,
     {
       maxNodes: mergedConfig.knowledgeGraph?.maxNodes || 10000
     }
   )
 
   const patternDetector = new PatternDetector(
-    mergedConfig.storagePath,
+    storagePath,
     {
       minFrequency: mergedConfig.patternDetection?.minFrequency || 3,
       minConfidence: mergedConfig.patternDetection?.minConfidence || 0.7
@@ -142,7 +145,7 @@ export function initializeLearningSystem(
   )
 
   const stateMachine = new StateMachineEngine(
-    mergedConfig.storagePath
+    storagePath
   )
 
   // Create default state machine if not exists
@@ -212,7 +215,7 @@ export function initializeLearningSystem(
   let fsrsScheduler: FSRScheduler | undefined
   if (mergedConfig.fsrs!.enabled) {
     fsrsScheduler = new FSRScheduler(
-      mergedConfig.storagePath,
+      storagePath,
       {
         initialIntervals: mergedConfig.fsrs!.initialIntervals
       }

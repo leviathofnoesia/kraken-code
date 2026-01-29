@@ -22,33 +22,19 @@ export function createKnowledgeTool(knowledgeGraph: KnowledgeGraphStore) {
         .string()
         .optional()
         .describe("Node ID (for addNode, getNode)"),
-      name: z
-        .string()
-        .optional()
-        .describe("Human-readable name (for addNode)"),
       type: z
         .string()
         .optional()
-        .describe("Node type: person, company, project, concept, skill, mistake, pattern (for addNode)"),
-      description: z
-        .string()
-        .optional()
-        .describe("Description of this entity (for addNode)"),
-      importance: z
-        .number()
-        .int()
-        .min(1)
-        .max(10)
-        .optional()
-        .describe("Importance level:1-10 (for addNode)"),
-      tags: z
-        .array(z.string())
-        .optional()
-        .describe("Tags for categorization (for addNode)"),
+        .describe("Node type: person, concept, tool, pattern, file, api, error (for addNode)"),
       data: z
-        .record(z.any())
+        .object({})
+        .passthrough()
         .optional()
-        .describe("Additional data to store (for addNode)"),
+        .describe("Data to store with the node (for addNode)"),
+      source: z
+        .enum(["experience", "manual", "inference"])
+        .optional()
+        .describe("Source of the node (for addNode)"),
       fromNodeId: z
         .string()
         .optional()
@@ -58,7 +44,7 @@ export function createKnowledgeTool(knowledgeGraph: KnowledgeGraphStore) {
         .optional()
         .describe("Target node ID (for addEdge)"),
       edgeType: z
-        .enum(["relates_to", "causes", "depends_on", "conflicts_with"])
+        .enum(["relatedTo", "conflictsWith", "dependsOn"])
         .optional()
         .describe("Relationship type (for addEdge)"),
       weight: z
@@ -81,60 +67,50 @@ export function createKnowledgeTool(knowledgeGraph: KnowledgeGraphStore) {
       byType: z
         .string()
         .optional()
-        .describe("Filter by node type (for list action)"),
-      byImportance: z
-        .number()
-        .int()
-        .min(1)
-        .max(10)
-        .optional()
-        .describe("Filter by minimum importance (for list action)")
+        .describe("Filter by node type (for list action)")
     },
     async execute(args) {
       const {
         action,
         nodeId,
-        name,
         type,
-        description,
-        importance,
-        tags,
         data,
+        source,
         fromNodeId,
         toNodeId,
         edgeType,
         weight,
         query,
         limit,
-        byType,
-        byImportance
+        byType
       } = args
 
       try {
         switch (action) {
           case "addNode": {
-            if (!nodeId) {
+            if (!nodeId || !type) {
               return JSON.stringify({
                 success: false,
-                error: "Missing required field: nodeId"
+                error: "Missing required fields: nodeId and type are required"
               }, null, 2)
             }
 
-            await knowledgeGraph.addNode(
+            const node = await knowledgeGraph.addNode(
               nodeId,
-              name || nodeId,
-              type || "concept",
-              description,
-              importance || 5,
-              tags || [],
-              data || {}
+              type as any,
+              data || {},
+              source || "manual"
             )
 
             return JSON.stringify({
               success: true,
               message: "Node added successfully",
-              nodeId,
-              name
+              node: {
+                id: node.id,
+                type: node.type,
+                importance: node.importance,
+                strength: node.strength
+              }
             }, null, 2)
           }
 
@@ -149,7 +125,7 @@ export function createKnowledgeTool(knowledgeGraph: KnowledgeGraphStore) {
             await knowledgeGraph.addEdge(
               fromNodeId,
               toNodeId,
-              edgeType,
+              edgeType as any,
               weight || 1
             )
 
@@ -158,8 +134,7 @@ export function createKnowledgeTool(knowledgeGraph: KnowledgeGraphStore) {
               message: "Edge added successfully",
               fromNodeId,
               toNodeId,
-              edgeType,
-              weight: weight || 1
+              edgeType
             }, null, 2)
           }
 
@@ -171,7 +146,7 @@ export function createKnowledgeTool(knowledgeGraph: KnowledgeGraphStore) {
               }, null, 2)
             }
 
-            const node = await knowledgeGraph.getNode(nodeId)
+            const node = knowledgeGraph.getNode(nodeId)
 
             if (!node) {
               return JSON.stringify({
@@ -185,48 +160,59 @@ export function createKnowledgeTool(knowledgeGraph: KnowledgeGraphStore) {
               node: {
                 id: node.id,
                 type: node.type,
+                data: node.data,
+                relations: node.relations,
                 importance: node.importance,
                 strength: node.strength,
                 lastAccessed: node.lastAccessed,
                 accessCount: node.accessCount,
-                tags: node.metadata?.tags || []
+                metadata: node.metadata
               }
             }, null, 2)
           }
 
           case "search": {
-            const result = await knowledgeGraph.getRelevantContext(query || "")
-            const nodes = result.nodes.slice(0, limit || 10)
+            if (!query) {
+              return JSON.stringify({
+                success: false,
+                error: "Missing required field: query"
+              }, null, 2)
+            }
+
+            const results = knowledgeGraph.search(query, byType)
+            const limited = results.slice(0, limit || 10)
 
             return JSON.stringify({
               success: true,
-              count: nodes.length,
-              nodes: nodes.map(n => ({
-                id: n.id,
-                type: n.type,
-                importance: n.importance
+              count: limited.length,
+              nodes: limited.map((node: any) => ({
+                id: node.id,
+                type: node.type,
+                importance: node.importance,
+                strength: node.strength
               }))
             }, null, 2)
           }
 
           case "list": {
-            let nodes = await knowledgeGraph.getImportantNodes(limit || 50)
+            const allNodes = knowledgeGraph.getAllNodes()
+            let filtered = allNodes
 
             if (byType) {
-              nodes = nodes.filter(n => n.type === byType)
+              filtered = filtered.filter((n: any) => n.type === byType)
             }
 
-            if (byImportance) {
-              nodes = nodes.filter(n => n.importance >= byImportance)
-            }
+            const limited = filtered.slice(0, limit || 10)
 
             return JSON.stringify({
               success: true,
-              count: nodes.length,
-              nodes: nodes.map(n => ({
-                id: n.id,
-                type: n.type,
-                importance: n.importance
+              count: limited.length,
+              total: filtered.length,
+              nodes: limited.map((node: any) => ({
+                id: node.id,
+                type: node.type,
+                importance: node.importance,
+                strength: node.strength
               }))
             }, null, 2)
           }

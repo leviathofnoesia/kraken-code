@@ -137,7 +137,7 @@ export function createContextInjectorHook(
             experiences,
             knowledgeNodes,
             patterns,
-            currentState
+            currentState ?? undefined
           )
 
           hookOutput.parts = hookOutput.parts || []
