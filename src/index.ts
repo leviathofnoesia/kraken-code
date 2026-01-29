@@ -160,8 +160,38 @@ const builtinTools: Record<string, any> = {
 let backgroundManager: BackgroundManager | null = null;
 
 const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks> => {
-  const config = (input as any).config as OpenCodeXConfig || {};
+  // Load config from multiple sources in priority order:
+  // 1. kraken_code key in opencode.json (for newer OpenCode versions)
+  // 2. kraken-code.json file (for newer plugin versions)
+  // 3. No config - use defaults
+  const inputConfig = (input as any).config as OpenCodeXConfig || {};
 
+  // Check if kraken_code is in the main config (OpenCode supports it)
+  let krakenConfig = inputConfig.kraken_code;
+
+  // Otherwise, try to load from separate file
+  if (!krakenConfig) {
+    try {
+      const fs = await import("node:fs/promises");
+      const path = await import("path");
+      const os = await import("os");
+      const krakenConfigPath = path.default.join(os.default.homedir(), ".config", "opencode", "kraken-code.json");
+      const configContent = await fs.default.readFile(krakenConfigPath, "utf-8");
+      krakenConfig = JSON.parse(configContent);
+      console.log("[kraken-code] Loaded config from kraken-code.json");
+    } catch (e) {
+      // Config file doesn't exist or can't be read - use empty config
+      krakenConfig = {};
+    }
+  }
+
+  // Merge kraken-specific config into the main config
+  // This allows kraken_code in opencode.json to work while also supporting separate file
+  if (!inputConfig.kraken_code && krakenConfig) {
+    (inputConfig as any).kraken_code = krakenConfig;
+  }
+
+  const config = inputConfig;
   const hooks: Hooks[] = [];
 
   console.log("[kraken-code] Initializing plugin...");
