@@ -249,6 +249,39 @@ export const ClaudeCodeCompatibilityConfigSchema = z.object({
   }).optional(),
 }).optional()
 
+// Learning System (Unified AI Memory) Configuration
+export const LearningSystemConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  storagePath: z.string().optional().default("~/.clawd/learning"),
+  experienceStore: z.object({
+    enabled: z.boolean().default(true),
+    bufferSize: z.number().int().min(100).max(10000).default(1000),
+    maxAgeDays: z.number().int().min(1).max(365).default(90),
+  }).optional(),
+  knowledgeGraph: z.object({
+    enabled: z.boolean().default(true),
+    maxNodes: z.number().int().min(100).max(100000).default(10000),
+  }).optional(),
+  patternDetection: z.object({
+    enabled: z.boolean().default(true),
+    minFrequency: z.number().int().min(1).max(20).default(3),
+    minConfidence: z.number().min(0).max(1).default(0.7),
+  }).optional(),
+  stateMachine: z.object({
+    enabled: z.boolean().default(true),
+    initialState: z.string().default("unknown"),
+  }).optional(),
+  fsrs: z.object({
+    enabled: z.boolean().default(true),
+    initialIntervals: z.array(z.number().int().positive()).default([1, 3, 7, 14, 30, 60, 120, 240, 480]),
+  }).optional(),
+  hooks: z.object({
+    recordOnToolExecute: z.boolean().default(true),
+    recordOnSessionEnd: z.boolean().default(true),
+    injectOnSessionStart: z.boolean().default(true),
+  }).optional(),
+}).optional()
+
 export const OpenCodeXConfigSchema = z.object({
   $schema: z.string().optional(),
   disabled_hooks: z.array(OpenCodeXHookNameSchema).optional(),
@@ -263,6 +296,7 @@ export const OpenCodeXConfigSchema = z.object({
   kratos: KratosConfigSchema.optional(),
   lsp: LSPConfigSchema.optional(),
   notifications: NotificationsConfigSchema.optional(),
+  learning: LearningSystemConfigSchema.optional(),
   enhanced: z.object({
     enabled: z.boolean().default(true),
     keywords: z.array(z.string()).default(["enhanced", "max", "full"]),
@@ -297,3 +331,4 @@ export type ModesConfig = z.infer<typeof ModesConfigSchema>
 export type SkillMcpConfig = z.infer<typeof SkillMcpConfigSchema>
 export type CommandLoaderConfig = z.infer<typeof CommandLoaderConfigSchema>
 export type ClaudeCodeCompatibilityConfig = z.infer<typeof ClaudeCodeCompatibilityConfigSchema>
+export type LearningSystemConfig = z.infer<typeof LearningSystemConfigSchema>

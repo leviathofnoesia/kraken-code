@@ -91,6 +91,9 @@ import { initializeAllMcpServers, shutdownAllMcpServers } from "./features/mcp/i
 import { initializeKratos, shutdownKratos } from "./features/mcp/kratos"
 import { getBuiltinMcpTools } from "./features/mcp/index"
 
+// Learning System
+import { initializeLearningSystem, shutdownLearningSystem } from "./features/learning/integration"
+
 // CLI & Skills
 import { getMcpManager } from "./features/skills/mcp-manager"
 
@@ -222,6 +225,16 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
       } catch (e) {
         console.error("[kraken-code] Error initializing MCP servers:", e);
       }
+
+      // Initialize Learning System (Unified AI Memory)
+      try {
+        const learningSystem = initializeLearningSystem(input, newConfig.learning);
+        Object.assign(hooks, learningSystem.hooks);
+        hooks.push({ tool: learningSystem.tools });
+        console.log("[kraken-code] Learning system initialized");
+      } catch (e) {
+        console.error("[kraken-code] Error initializing learning system:", e);
+      }
     },
   });
 
@@ -288,6 +301,7 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
     try {
       await shutdownAllMcpServers();
       await shutdownKratos();
+      await shutdownLearningSystem();
     } catch (e) {
       console.error("Kraken Code: Error shutting down services", e);
     }
