@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { writeFileSync, existsSync, mkdirSync } from "node:fs"
+import { writeFileSync, existsSync, mkdirSync, readFileSync } from "node:fs"
 import * as path from "path"
 import * as os from "os"
 import color from "picocolors"
@@ -8,7 +8,8 @@ export async function runInit(options: { minimal?: boolean; full?: boolean }) {
   console.log(color.cyan("🐙 Initializing Kraken Code..."))
 
   const configDir = path.join(os.homedir(), ".config", "opencode")
-  const configPath = path.join(configDir, "opencode.json")
+  const opencodeConfigPath = path.join(configDir, "opencode.json")
+  const krakenConfigPath = path.join(configDir, "kraken-code.json")
 
   if (!existsSync(configDir)) {
     mkdirSync(configDir, { recursive: true })
@@ -17,56 +18,101 @@ export async function runInit(options: { minimal?: boolean; full?: boolean }) {
   const isMinimal = options.minimal
   const isFull = options.full
 
-  const defaultConfig = {
-    plugin: ["kraken-code"],
-    kraken_code: {
-      agents: {
-        default: "kraken",
-        enabled: isMinimal
-          ? ["kraken", "atlas"]
-          : ["kraken", "atlas", "nautilus", "abyssal", "coral", "siren", "scylla", "pearl"]
+  // Plugin config stored in separate file (not in opencode.json)
+  const krakenConfig: Record<string, any> = {
+    default_agent: "Kraken",
+    blitzkrieg: {
+      enabled: true,
+      testPlan: {
+        requiredBeforeImplementation: true,
+        minTestCases: 3,
+        requireCoverageThreshold: true,
+        coverageThresholdPercent: 80
       },
+      tddWorkflow: {
+        enforceWriteTestFirst: true,
+        forbidCodeWithoutTest: true,
+        allowRefactorWithoutTest: true
+      },
+      evidence: {
+        requireTestExecutionEvidence: true,
+        requireAssertionEvidence: true,
+        requireEdgeCaseEvidence: true
+      },
+      plannerConstraints: {
+        requireTestStep: true,
+        requireVerificationStep: true,
+        maxImplementationStepComplexity: 3
+      }
+    },
+    kratos: {
+      enabled: true,
+      autoSave: true,
+      storagePath: "~/.kratos"
+    },
+    modes: {
       blitzkrieg: {
-        enabled: true,
-        testPlan: {
-          requiredBeforeImplementation: !isMinimal,
-          minTestCases: 3,
-          requireCoverageThreshold: !isMinimal,
-          coverageThresholdPercent: 80
-        },
-        tddWorkflow: {
-          enforceWriteTestFirst: !isMinimal,
-          forbidCodeWithoutTest: !isMinimal,
-          allowRefactorWithoutTest: true
-        },
-        evidence: {
-          requireTestExecutionEvidence: !isMinimal,
-          requireAssertionEvidence: !isMinimal,
-          requireEdgeCaseEvidence: !isMinimal
-        },
-        plannerConstraints: {
-          requireTestStep: !isMinimal,
-          requireVerificationStep: !isMinimal,
-          maxImplementationStepComplexity: 3
-        }
+        enabled: true
       },
-      skills: {
-        autoLoad: true,
-        directories: [
-          path.join(configDir, "skill"),
-          path.join(__dirname, "../../templates/skills")
-        ]
-      },
-      kratos: {
+      ultrathink: {
         enabled: true,
-        autoSave: true,
-        storagePath: path.join(os.homedir(), ".kratos")
+        thinkingBudget: 32000,
+        autoVariantSwitch: true
+      },
+      ultrawork: {
+        enabled: true,
+        parallelAgents: 4
+      },
+      search: {
+        enabled: true,
+        maxResults: 50
+      },
+      analyze: {
+        enabled: true,
+        consultationPhases: 3
       }
     }
   }
 
-  writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2), "utf-8")
-  console.log(color.green(`✓ Configuration written to ${configPath}`))
+  // Merge with existing kraken config if it exists
+  let existingKrakenConfig: Record<string, any> = {}
+  if (existsSync(krakenConfigPath)) {
+    try {
+      existingKrakenConfig = JSON.parse(readFileSync(krakenConfigPath, "utf-8"))
+    } catch {
+      existingKrakenConfig = {}
+    }
+  }
+
+  const mergedKrakenConfig = {
+    ...krakenConfig,
+    ...existingKrakenConfig
+  }
+
+  // Write kraken-code config
+  writeFileSync(krakenConfigPath, JSON.stringify(mergedKrakenConfig, null, 2))
+  console.log(color.green(`✓ Kraken Code configuration written to ${krakenConfigPath}`))
+
+  // Update opencode.json to add plugin (only)
+  let existingOpencodeConfig: Record<string, any> = {}
+  if (existsSync(opencodeConfigPath)) {
+    try {
+      existingOpencodeConfig = JSON.parse(readFileSync(opencodeConfigPath, "utf-8"))
+    } catch {
+      existingOpencodeConfig = {}
+    }
+  }
+
+  const mergedOpencodeConfig = {
+    ...existingOpencodeConfig,
+    plugin: Array.from(new Set([
+      ...(existingOpencodeConfig.plugin || []),
+      "kraken-code"
+    ]))
+  }
+
+  writeFileSync(opencodeConfigPath, JSON.stringify(mergedOpencodeConfig, null, 2))
+  console.log(color.green(`✓ OpenCode configuration updated at ${opencodeConfigPath}`))
 
   // Install skill templates
   await installSkillTemplates()

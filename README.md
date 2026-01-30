@@ -17,16 +17,28 @@
 ## Quick Start
 
 ```bash
+# Install Kraken Code
 bun install kraken-code
-```
 
-Or if you don't have Bun:
-
-```bash
+# Or with npm
 npm install kraken-code
+
+# Or with curl (for non-package-manager users)
+bash scripts/install-curl.sh
+
+# Initialize with minimal setup (agents only)
+kraken-code init --minimal
+
+# Or initialize with full setup (all features)
+kraken-code init --full
+
+# Run OpenCode
+opencode
 ```
 
-That's it. Kraken Code auto-configures and integrates seamlessly.
+**Important:** After installation, you must run `kraken-code init` to create the proper configuration. The CLI command adds the plugin to your `~/.config/opencode/opencode.json` file and sets up all Kraken Code features.
+
+For detailed installation options, run: `kraken-code --help`
 
 ---
 
@@ -144,17 +156,15 @@ All configuration lives in `~/.config/opencode/opencode.json`:
 
 ```json
 {
-  "kraken_code": {
-    "default_agent": "Kraken",
-    "agents": {
-      "Kraken": { "enabled": true, "model": "..." }
-    },
-    "blitzkrieg": { "enabled": true, "enforcement": "strict" },
-    "kratos": { "enabled": true, "storage_path": "~/.kratos" },
-    "modes": {
-      "blitzkrieg": { "enabled": true },
-      "ultrathink": { "enabled": true, "max_tokens": 32000 }
-    }
+  "default_agent": "Kraken",
+  "agents": {
+    "Kraken": { "enabled": true, "model": "..." }
+  },
+  "blitzkrieg": { "enabled": true, "enforcement": "strict" },
+  "kratos": { "enabled": true, "storagePath": "~/.kratos" },
+  "modes": {
+    "blitzkrieg": { "enabled": true },
+    "ultrathink": { "enabled": true, "thinkingBudget": 32000 }
   }
 }
 ```

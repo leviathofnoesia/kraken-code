@@ -12,14 +12,29 @@ export interface NewPermissionFormat {
 
 export type VersionAwareRestrictions = LegacyToolsFormat | NewPermissionFormat
 
+const VALID_PERMISSION_KEYS = new Set(["edit", "bash", "webfetch", "doom_loop", "external_directory"])
+
 export function createAgentToolRestrictions(
   denyTools: string[]
 ): VersionAwareRestrictions {
   if (supportsNewPermissionSystem()) {
-    return {
-      permission: Object.fromEntries(
-        denyTools.map((tool) => [tool, "deny" as const])
-      ),
+    const permission: Record<string, PermissionValue> = {}
+    const tools: Record<string, boolean> = {}
+
+    for (const tool of denyTools) {
+      if (VALID_PERMISSION_KEYS.has(tool)) {
+        permission[tool] = "deny"
+      } else {
+        tools[tool] = false
+      }
+    }
+
+    if (Object.keys(tools).length > 0 && Object.keys(permission).length > 0) {
+      return { permission, tools } as VersionAwareRestrictions
+    } else if (Object.keys(tools).length > 0) {
+      return { tools } as VersionAwareRestrictions
+    } else {
+      return { permission } as VersionAwareRestrictions
     }
   }
 

@@ -8,8 +8,8 @@
  * - Task complexity doesn't exceed threshold
  */
 
-import type { Hooks, PluginInput } from '@opencode-ai/plugin'
-import type { OpenCodeXConfig } from '../../config/schema'
+import type { Hooks } from '@opencode-ai/plugin'
+import { getBlitzkriegConfig as getConfig } from '../../config/manager'
 import {
   checkPlanningConstraints,
   generatePlanningComplianceReport,
@@ -36,12 +36,7 @@ const planningStore: PlanningStore = {}
  */
 export function registerPlanningSteps(sessionId: string, stepDescriptions: string[]): void {
   const steps: PlanningStep[] = stepDescriptions.map((desc, index) =>
-    createPlanningStep(
-      `step-${index}`,
-      desc,
-      inferStepType(desc),
-      estimateComplexity(desc)
-    )
+    createPlanningStep(`step-${index}`, desc, inferStepType(desc), estimateComplexity(desc)),
   )
 
   if (!planningStore[sessionId]) {
@@ -58,14 +53,6 @@ export function registerPlanningSteps(sessionId: string, stepDescriptions: strin
  */
 export function clearPlanning(sessionId: string): void {
   delete planningStore[sessionId]
-}
-
-/**
- * Get configuration from the plugin input
- */
-function getBlitzkriegConfig(input: PluginInput): OpenCodeXConfig['blitzkrieg'] | undefined {
-  const config = (input as any).config as OpenCodeXConfig | undefined
-  return config?.blitzkrieg
 }
 
 /**
@@ -107,14 +94,14 @@ function extractPlanningSteps(args: any): string[] {
 /**
  * Create the planner constraints hook
  */
-export function createBlitzkriegPlannerConstraintsHook(input: PluginInput): Hooks {
+export function createBlitzkriegPlannerConstraintsHook(): Hooks {
   return {
     /**
      * Execute before tool operations
      * Validates planning constraints for todo list operations
      */
     'tool.execute.before': async (toolInput, toolOutput) => {
-      const blitzkriegConfig = getBlitzkriegConfig(input)
+      const blitzkriegConfig = getConfig()
 
       // Skip if Blitzkrieg is disabled
       if (!blitzkriegConfig?.enabled) {
@@ -150,8 +137,8 @@ export function createBlitzkriegPlannerConstraintsHook(input: PluginInput): Hook
           `${sessionId}-step-${index}`,
           desc,
           inferStepType(desc),
-          estimateComplexity(desc)
-        )
+          estimateComplexity(desc),
+        ),
       )
 
       // Store the steps for reference
@@ -180,18 +167,22 @@ export function createBlitzkriegPlannerConstraintsHook(input: PluginInput): Hook
         })
 
         // Build error message with violations and suggestions
-        const violationsMsg = blockingViolations.map((v) => `- [${v.severity}] ${v.type}: ${v.message}`).join('\n')
+        const violationsMsg = blockingViolations
+          .map((v) => `- [${v.severity}] ${v.type}: ${v.message}`)
+          .join('\n')
         const suggestionsMsg = report.suggestions.map((s) => `- ${s}`).join('\n')
 
         throw new Error(
-          `Blitzkrieg Planner Constraint Violation:\n\n${violationsMsg}\n\nSuggestions:\n${suggestionsMsg}`
+          `Blitzkrieg Planner Constraint Violation:\n\n${violationsMsg}\n\nSuggestions:\n${suggestionsMsg}`,
         )
       }
 
       // If there are warnings but no blocking violations, log them
       const warningViolations = check.violations.filter((v) => v.severity === 'warning')
       if (warningViolations.length > 0) {
-        const warningsMsg = warningViolations.map((v) => `- [${v.severity}] ${v.type}: ${v.message}`).join('\n')
+        const warningsMsg = warningViolations
+          .map((v) => `- [${v.severity}] ${v.type}: ${v.message}`)
+          .join('\n')
         console.warn(`Blitzkrieg Planner Warnings:\n${warningsMsg}`)
       }
     },
@@ -209,7 +200,9 @@ export function createBlitzkriegPlannerConstraintsHook(input: PluginInput): Hook
         const todos = args?.todos as Array<{ status: string }> | undefined
 
         // Check if all todos are completed or cancelled
-        const allCompleted = todos?.every((t) => t.status === 'completed' || t.status === 'cancelled')
+        const allCompleted = todos?.every(
+          (t) => t.status === 'completed' || t.status === 'cancelled',
+        )
 
         if (allCompleted && todos && todos.length > 0) {
           // Clear planning for this session
@@ -224,8 +217,8 @@ export function createBlitzkriegPlannerConstraintsHook(input: PluginInput): Hook
 /**
  * Create base hook using standard hook pattern
  */
-export function createHook(input: PluginInput): Hooks {
-  return createBlitzkriegPlannerConstraintsHook(input)
+export function createHook(): Hooks {
+  return createBlitzkriegPlannerConstraintsHook()
 }
 
 /**
@@ -235,6 +228,6 @@ export const metadata = {
   name: 'blitzkrieg-planner' as const,
   priority: 85, // High priority for planning enforcement
   description:
-    'Enforces planning discipline and step complexity limits. Validates that each implementation task has a corresponding test step, verification steps exist after implementation, and task complexity doesn\'t exceed threshold.',
+    "Enforces planning discipline and step complexity limits. Validates that each implementation task has a corresponding test step, verification steps exist after implementation, and task complexity doesn't exceed threshold.",
   version: '1.0.0',
 }

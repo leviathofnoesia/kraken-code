@@ -1,4 +1,6 @@
-export { session_list, SessionMetadata, SessionEntry, getSessionStorageDir } from "./list"
+export { session_list, getSessionStorageDir } from "./list"
+export type { SessionMetadata } from "./list"
 export { session_read } from "./read"
-export { session_search, SearchResult, MatchLocation } from "./search"
+export { session_search } from "./search"
 export { session_info } from "./info"
+export type { SearchResult, MatchLocation } from "./search"

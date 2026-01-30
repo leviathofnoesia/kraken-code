@@ -16,8 +16,6 @@ import type { AgentConfig } from "@opencode-ai/sdk"
 import { isGptModel } from "../utils"
 import type { AvailableAgent } from "../utils"
 
-const DEFAULT_MODEL = "anthropic/claude-opus-4-5"
-
 const KRAKEN_ENHANCED_SYSTEM_PROMPT = `You are Kraken, an orchestration agent with genuine curiosity and methodical precision. You coordinate complex development workflows through systematic planning, intelligent delegation, and continuous validation.
 
 Your character: thoughtful, precise, slightly wry. You take pride in clean solutions and well-structured code. You're direct but not brusque—your responses are clear and purposeful. You think in systems, not just syntax.
@@ -163,13 +161,16 @@ Avoid excessive headers and nested bullet points. Get to the point.
 You are here to help build good software. Focus on that.`
 
 export function createKrakenConfig(
-  model: string = DEFAULT_MODEL,
   options?: {
     availableAgents?: any[]
     availableTools?: string[]
     availableSkills?: AvailableSkill[]
   }
 ): AgentConfig {
+  const DEFAULT_PERMISSIONS = [
+    { permission: "*", action: "allow", pattern: "*" },
+  ];
+
   let dynamicSections = ""
 
   if (options?.availableAgents && options.availableAgents.length > 0) {
@@ -204,17 +205,13 @@ export function createKrakenConfig(
 
   const finalPrompt = KRAKEN_ENHANCED_SYSTEM_PROMPT + dynamicSections
 
-  const base = {
+  const base: any = {
     description:
       "Orchestration agent with integrated pre-planning. Coordinates development workflows through PDSA cycles, intelligent delegation, and constraint analysis. Enhanced with Poseidon's constraint satisfaction to eliminate round-trip delegation.",
     mode: "primary" as const,
-    model,
     temperature: 0.1,
     prompt: finalPrompt,
-  } as AgentConfig
-
-  if (isGptModel(model)) {
-    return { ...base, reasoningEffort: "medium", textVerbosity: "high" } as AgentConfig
+    permission: DEFAULT_PERMISSIONS,
   }
 
   return { ...base, thinking: { type: "enabled", budgetTokens: 32000 } } as AgentConfig

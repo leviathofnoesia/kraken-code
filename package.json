@@ -25,12 +25,18 @@
   },
   "scripts": {
     "build": "bun build src/index.ts src/google-auth.ts --outdir dist --target node --format esm --external @opencode-ai/plugin --external @opencode-ai/sdk --external zod && bun build src/cli/index.ts --outdir dist/cli --target bun --format esm --packages external && bun run build:schema",
-    "build:schema": "bun run script/build-schema.ts",
+    "build:schema": "bun run script/build-schema.ts && mkdir -p dist && cp assets/kraken-code.schema.json dist/kraken-code.schema.json",
     "clean": "rm -rf dist",
     "prepublishOnly": "bun run clean && bun run build",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
     "test": "bun test",
-    "install:curl": "bash scripts/install-curl.sh"
+    "test:watch": "bun test --watch",
+    "install:curl": "bash scripts/install-curl.sh",
+    "postinstall": "kraken-code init --minimal"
   },
   "keywords": [
     "opencode",
@@ -77,6 +83,7 @@
     "hono": "^4.10.4",
     "js-yaml": "^4.1.1",
     "jsonc-parser": "^3.3.1",
+    "kraken-code": "^1.1.2",
     "kratos-mcp": "4.0.0",
     "open": "^11.0.0",
     "picocolors": "^1.1.1",
@@ -87,7 +94,13 @@
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/picomatch": "^3.0.2",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "bun-types": "latest",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0",
     "typescript": "^5.9.3",
     "typescript-language-server": "^5.1.3"
   },

@@ -17,9 +17,11 @@ export const lsp_hover = tool({
         return await client.hover(path, line, character)
       })
 
+      const formattedHover = result ? formatHoverResult(result) : "No hover information available"
+
       return JSON.stringify({
         success: true,
-        hover: formatHoverResult(result as any),
+        hover: formattedHover,
       })
     } catch (error) {
       return JSON.stringify({

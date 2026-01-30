@@ -71,25 +71,27 @@ export async function withLspClient<T>(filePath: string, fn: (client: LSPClient)
   return fn(client)
 }
 
-export function formatHoverResult(result: HoverResult | null): string {
+export function formatHoverResult(result: unknown): string {
   if (!result) return "No hover information available"
-
-  const contents = result.contents
-
-  if (typeof contents === "string") {
-    return contents
+  
+  const hoverResult = result as { kind?: string; contents?: any }
+  
+  if (!hoverResult.contents) return "No hover information available"
+  
+  if (typeof hoverResult.contents === "string") {
+    return hoverResult.contents
   }
-
-  if (Array.isArray(contents)) {
-    return contents
+  
+  if (Array.isArray(hoverResult.contents)) {
+    return hoverResult.contents
       .map((item) => {
         if (typeof item === "string") return item
         return item.value
       })
       .join("\n\n")
   }
-
-  return contents.value
+  
+  return hoverResult.contents.value
 }
 
 export function formatLocation(loc: Location | LocationLink): string {

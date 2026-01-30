@@ -9,9 +9,13 @@
  * - Coverage thresholds are specified (if required)
  */
 
-import type { Hooks, PluginInput } from '@opencode-ai/plugin'
-import type { OpenCodeXConfig } from '../../config/schema'
-import { validateTestPlan, canBeginImplementation, type TestPlanRequirements } from '../../features/blitzkrieg/blitzkrieg-test-plan'
+import type { Hooks } from '@opencode-ai/plugin'
+import { getBlitzkriegConfig as getConfig } from '../../config/manager'
+import {
+  validateTestPlan,
+  canBeginImplementation,
+  type TestPlanRequirements,
+} from '../../features/blitzkrieg/blitzkrieg-test-plan'
 
 /**
  * Test plan storage (in-memory for now)
@@ -35,7 +39,7 @@ export function registerTestPlan(
   featurePath: string,
   testCaseCount: number,
   coverageTarget?: number,
-  approved: boolean = false
+  approved: boolean = false,
 ): void {
   testPlanStore[featurePath] = {
     exists: true,
@@ -92,27 +96,16 @@ function getTestPlanState(featurePath: string) {
 }
 
 /**
- * Get configuration from the plugin input
- * Configuration is accessed via the config schema
- */
-function getBlitzkriegConfig(input: PluginInput): OpenCodeXConfig['blitzkrieg'] | undefined {
-  // Configuration is validated by the schema system
-  // We access it through the plugin's config system
-  const config = (input as any).config as OpenCodeXConfig | undefined
-  return config?.blitzkrieg
-}
-
-/**
  * Create the test plan enforcer hook
  */
-export function createBlitzkriegTestPlanEnforcerHook(input: PluginInput): Hooks {
+export function createBlitzkriegTestPlanEnforcerHook(): Hooks {
   return {
     /**
      * Execute before tool operations
      * Validates test plan compliance for edit/write operations on implementation files
      */
     'tool.execute.before': async (toolInput, toolOutput) => {
-      const blitzkriegConfig = getBlitzkriegConfig(input)
+      const blitzkriegConfig = getConfig()
 
       // Skip if Blitzkrieg is disabled
       if (!blitzkriegConfig?.enabled) {
@@ -160,7 +153,7 @@ export function createBlitzkriegTestPlanEnforcerHook(input: PluginInput): Hooks 
 
         // Block the operation by throwing an error with a detailed message
         throw new Error(
-          `Blitzkrieg Test Plan Violation: ${violations}. Please create a test plan for this feature before implementing. Use registerTestPlan('${featurePath}', testCaseCount, coverageTarget, approved) to register a test plan.`
+          `Blitzkrieg Test Plan Violation: ${violations}. Please create a test plan for this feature before implementing. Use registerTestPlan('${featurePath}', testCaseCount, coverageTarget, approved) to register a test plan.`,
         )
       }
     },
@@ -170,8 +163,8 @@ export function createBlitzkriegTestPlanEnforcerHook(input: PluginInput): Hooks 
 /**
  * Create base hook using standard hook pattern
  */
-export function createHook(input: PluginInput): Hooks {
-  return createBlitzkriegTestPlanEnforcerHook(input)
+export function createHook(): Hooks {
+  return createBlitzkriegTestPlanEnforcerHook()
 }
 
 /**

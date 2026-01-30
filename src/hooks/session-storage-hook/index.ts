@@ -6,8 +6,11 @@ import {
   appendTranscriptEntry as appendKrakenTranscriptEntry,
   recordAssistantMessage as recordKrakenAssistantMessage,
 } from "../../storage"
+import { createLogger } from "../../utils/logger"
 
-export interface SessionStorageHookConfig {
+const logger = createLogger("session-storage-hook")
+
+export interface SessionStorageHookOptions {
   enabled?: boolean
   recordTodos?: boolean
   recordTranscripts?: boolean
@@ -15,7 +18,7 @@ export interface SessionStorageHookConfig {
 
 export function createSessionStorageHook(
   _input: PluginInput,
-  options?: { config?: SessionStorageHookConfig }
+  options?: { config?: SessionStorageHookOptions }
 ): Hooks {
   const config = options?.config ?? {
     enabled: true,
@@ -94,7 +97,7 @@ export function createSessionStorageHook(
       }
 
       if (sessionID) {
-        console.log(`[storage-hooks] Tool ${tool} completed for session ${sessionID}`)
+        logger.info(`Tool ${tool} completed for session ${sessionID}`)
       }
     },
   }

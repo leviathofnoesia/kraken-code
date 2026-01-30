@@ -1,56 +1,56 @@
-import { z } from "zod"
+import { z } from 'zod'
 
 export const OpenCodeXBuiltinAgentNameSchema = z.enum([
-  "Kraken",
-  "Maelstrom",
-  "Nautilus",
-  "Abyssal",
-  "Coral",
-  "Siren",
-  "Leviathan",
-  "Poseidon (Plan Consultant)",
-  "Scylla (Plan Reviewer)",
-  "Pearl",
+  'Kraken',
+  'Maelstrom',
+  'Nautilus',
+  'Abyssal',
+  'Coral',
+  'Siren',
+  'Leviathan',
+  'Poseidon (Plan Consultant)',
+  'Scylla (Plan Reviewer)',
+  'Pearl',
 ])
 
 export const OpenCodeXHookNameSchema = z.enum([
-  "ralph-loop",
-  "think-mode",
-  "context-window-monitor",
-  "session-recovery",
-  "comment-checker",
-  "keyword-detector",
-  "auto-slash-command",
-  "directory-agents-injector",
-  "directory-readme-injector",
-  "rules-injector",
-  "preemptive-compaction",
-  "compaction-context-injector",
-  "edit-error-recovery",
-  "empty-message-sanitizer",
-  "thinking-block-validator",
-  "tool-output-truncator",
-  "grep-output-truncator",
-  "empty-task-response-detector",
-  "blitzkrieg-test-plan-enforcer",
-  "blitzkrieg-tdd-workflow",
-  "blitzkrieg-evidence-verifier",
-  "blitzkrieg-planner-constraints",
+  'ralph-loop',
+  'think-mode',
+  'context-window-monitor',
+  'session-recovery',
+  'comment-checker',
+  'keyword-detector',
+  'auto-slash-command',
+  'directory-agents-injector',
+  'directory-readme-injector',
+  'rules-injector',
+  'preemptive-compaction',
+  'compaction-context-injector',
+  'edit-error-recovery',
+  'empty-message-sanitizer',
+  'thinking-block-validator',
+  'tool-output-truncator',
+  'grep-output-truncator',
+  'empty-task-response-detector',
+  'blitzkrieg-test-plan-enforcer',
+  'blitzkrieg-tdd-workflow',
+  'blitzkrieg-evidence-verifier',
+  'blitzkrieg-planner-constraints',
 ])
 
-export const OpenCodeXBuiltinCommandNameSchema = z.enum([
-  "init-deep",
-])
+export const OpenCodeXBuiltinCommandNameSchema = z.enum(['init-deep'])
 
 export const AgentPermissionSchema = z.object({
-  edit: z.enum(["allow", "ask", "deny"]).default("ask"),
-  bash: z.union([
-    z.enum(["allow", "ask", "deny"]),
-    z.record(z.string(), z.enum(["allow", "ask", "deny"])),
-  ]).default("ask"),
-  webfetch: z.enum(["allow", "ask", "deny"]).default("ask"),
-  doom_loop: z.enum(["allow", "ask", "deny"]).default("ask"),
-  external_directory: z.enum(["allow", "ask", "deny"]).default("ask"),
+  edit: z.enum(['allow', 'ask', 'deny']).default('ask'),
+  bash: z
+    .union([
+      z.enum(['allow', 'ask', 'deny']),
+      z.record(z.string(), z.enum(['allow', 'ask', 'deny'])),
+    ])
+    .default('ask'),
+  webfetch: z.enum(['allow', 'ask', 'deny']).default('ask'),
+  doom_loop: z.enum(['allow', 'ask', 'deny']).default('ask'),
+  external_directory: z.enum(['allow', 'ask', 'deny']).default('ask'),
 })
 
 export const AgentOverrideConfigSchema = z.object({
@@ -62,7 +62,7 @@ export const AgentOverrideConfigSchema = z.object({
   tools: z.record(z.string(), z.boolean()).optional(),
   disable: z.boolean().optional(),
   description: z.string().optional(),
-  mode: z.enum(["subagent", "primary", "all"]).optional(),
+  mode: z.enum(['subagent', 'primary', 'all']).optional(),
   color: z.string().optional(),
   permission: AgentPermissionSchema.optional(),
 })
@@ -75,8 +75,8 @@ export const AgentOverridesSchema = z.object({
   Coral: AgentOverrideConfigSchema.optional(),
   Siren: AgentOverrideConfigSchema.optional(),
   Leviathan: AgentOverrideConfigSchema.optional(),
-  "Poseidon (Plan Consultant)": AgentOverrideConfigSchema.optional(),
-  "Scylla (Plan Reviewer)": AgentOverrideConfigSchema.optional(),
+  'Poseidon (Plan Consultant)': AgentOverrideConfigSchema.optional(),
+  'Scylla (Plan Reviewer)': AgentOverrideConfigSchema.optional(),
   Pearl: AgentOverrideConfigSchema.optional(),
 })
 
@@ -100,7 +100,7 @@ export const ThinkModeConfigSchema = z.object({
 
 export const CompressionConfigSchema = z.object({
   enabled: z.boolean().default(true),
-  level: z.enum(["cache_hit", "partial", "full"]).default("partial"),
+  level: z.enum(['cache_hit', 'partial', 'full']).default('partial'),
 })
 
 export const BlitzkriegConfigSchema = z.object({
@@ -130,10 +130,10 @@ export const BlitzkriegConfigSchema = z.object({
 
 export const EnhancedModeConfigSchema = z.object({
   enabled: z.boolean().default(true),
-  keywords: z.array(z.string()).default(["enhanced", "max", "full"]),
-  searchKeywords: z.array(z.string()).default(["search", "find", "locate", "찾아", "검색"]),
-  analyzeKeywords: z.array(z.string()).default(["analyze", "investigate", "분석", "조사", "調査"]),
-  thinkKeywords: z.array(z.string()).default(["think", "reason", "think deeply", "ultrathink"]),
+  keywords: z.array(z.string()).default(['enhanced', 'max', 'full']),
+  searchKeywords: z.array(z.string()).default(['search', 'find', 'locate', '찾아', '검색']),
+  analyzeKeywords: z.array(z.string()).default(['analyze', 'investigate', '분석', '조사', '調査']),
+  thinkKeywords: z.array(z.string()).default(['think', 'reason', 'think deeply', 'ultrathink']),
 })
 
 // MCP (Model Context Protocol) Configuration
@@ -142,8 +142,8 @@ export const WebsearchMCPConfigSchema = z.object({
   apiKey: z.string().optional(),
   timeout: z.number().int().min(1000).max(120000).default(30000),
   numResults: z.number().int().min(1).max(20).default(8),
-  livecrawl: z.enum(["fallback", "preferred"]).default("fallback"),
-  searchType: z.enum(["auto", "fast", "deep"]).default("auto"),
+  livecrawl: z.enum(['fallback', 'preferred']).default('fallback'),
+  searchType: z.enum(['auto', 'fast', 'deep']).default('auto'),
   contextMaxCharacters: z.number().int().min(1000).max(50000).default(10000),
 })
 
@@ -162,8 +162,12 @@ export const GrepAppMCPConfigSchema = z.object({
   timeout: z.number().int().min(1000).max(120000).default(30000),
   maxResults: z.number().int().min(1).max(30).default(10),
   rateLimitDelay: z.number().int().min(100).max(10000).default(1000),
-  defaultExtensions: z.array(z.string()).default(["ts", "js", "tsx", "jsx", "py", "java", "go", "rs"]),
-  defaultLanguages: z.array(z.string()).default(["TypeScript", "JavaScript", "Python", "Java", "Go", "Rust"]),
+  defaultExtensions: z
+    .array(z.string())
+    .default(['ts', 'js', 'tsx', 'jsx', 'py', 'java', 'go', 'rs']),
+  defaultLanguages: z
+    .array(z.string())
+    .default(['TypeScript', 'JavaScript', 'Python', 'Java', 'Go', 'Rust']),
 })
 
 export const MCPConfigSchema = z.object({
@@ -175,17 +179,22 @@ export const MCPConfigSchema = z.object({
 export const KratosConfigSchema = z.object({
   enabled: z.boolean().default(true),
   autoSave: z.boolean().default(true),
-  storagePath: z.string().default("~/.kratos")
+  storagePath: z.string().default('~/.kratos'),
 })
 
 export const LSPConfigSchema = z.object({
   enabled: z.boolean().default(true),
   workspacePath: z.string().optional(),
-  servers: z.record(z.string(), z.object({
-    enabled: z.boolean().default(true),
-    command: z.string().optional(),
-    args: z.array(z.string()).optional(),
-  })).optional(),
+  servers: z
+    .record(
+      z.string(),
+      z.object({
+        enabled: z.boolean().default(true),
+        command: z.string().optional(),
+        args: z.array(z.string()).optional(),
+      }),
+    )
+    .optional(),
 })
 
 export const NotificationsConfigSchema = z.object({
@@ -199,25 +208,38 @@ export const NotificationsConfigSchema = z.object({
 })
 
 export const ModesConfigSchema = z.object({
-  ultrawork: z.object({
-    enabled: z.boolean().default(true),
-    parallelAgents: z.number().int().min(1).max(10).default(4),
-    concurrencyLimits: z.record(z.string(), z.number().int().min(1).max(10)).optional(),
-  }).optional(),
-  search: z.object({
-    enabled: z.boolean().default(true),
-    maxResults: z.number().int().min(1).max(100).default(50),
-  }).optional(),
-  analyze: z.object({
-    enabled: z.boolean().default(true),
-    consultationPhases: z.number().int().min(1).max(5).default(3),
-    expertAgents: z.array(z.string()).optional(),
-  }).optional(),
-  ultrathink: z.object({
-    enabled: z.boolean().default(true),
-    thinkingBudget: z.number().int().min(1000).max(200000).default(32000),
-    autoVariantSwitch: z.boolean().default(true),
-  }).optional(),
+  blitzkrieg: z
+    .object({
+      enabled: z.boolean().default(true),
+    })
+    .optional(),
+  ultrawork: z
+    .object({
+      enabled: z.boolean().default(true),
+      parallelAgents: z.number().int().min(1).max(10).default(4),
+      concurrencyLimits: z.record(z.string(), z.number().int().min(1).max(10)).optional(),
+    })
+    .optional(),
+  search: z
+    .object({
+      enabled: z.boolean().default(true),
+      maxResults: z.number().int().min(1).max(100).default(50),
+    })
+    .optional(),
+  analyze: z
+    .object({
+      enabled: z.boolean().default(true),
+      consultationPhases: z.number().int().min(1).max(5).default(3),
+      expertAgents: z.array(z.string()).optional(),
+    })
+    .optional(),
+  ultrathink: z
+    .object({
+      enabled: z.boolean().default(true),
+      thinkingBudget: z.number().int().min(1000).max(200000).default(32000),
+      autoVariantSwitch: z.boolean().default(true),
+    })
+    .optional(),
 })
 
 export const SkillMcpConfigSchema = z.object({
@@ -228,26 +250,43 @@ export const SkillMcpConfigSchema = z.object({
 
 export const CommandLoaderConfigSchema = z.object({
   enabled: z.boolean().default(true),
-  disabledScopes: z.array(z.enum(["builtin", "user", "project", "opencode", "opencode-project", "skill", "claude-user", "claude-project"])).optional(),
+  disabledScopes: z
+    .array(
+      z.enum([
+        'builtin',
+        'user',
+        'project',
+        'opencode',
+        'opencode-project',
+        'skill',
+        'claude-user',
+        'claude-project',
+      ]),
+    )
+    .optional(),
 })
 
-export const ClaudeCodeCompatibilityConfigSchema = z.object({
-  enabled: z.boolean().default(true),
-  settingsJsonHooks: z.boolean().default(true),
-  commandLoader: z.boolean().default(true),
-  skillLoader: z.boolean().default(true),
-  agentLoader: z.boolean().default(true),
-  mcpLoader: z.boolean().default(true),
-  dataStorage: z.boolean().default(true),
-  toggles: z.object({
-    mcp: z.boolean().default(true),
-    commands: z.boolean().default(true),
-    skills: z.boolean().default(true),
-    agents: z.boolean().default(true),
-    hooks: z.boolean().default(true),
-    plugins: z.record(z.string(), z.boolean()).optional(),
-  }).optional(),
-}).optional()
+export const ClaudeCodeCompatibilityConfigSchema = z
+  .object({
+    enabled: z.boolean().default(true),
+    settingsJsonHooks: z.boolean().default(true),
+    commandLoader: z.boolean().default(true),
+    skillLoader: z.boolean().default(true),
+    agentLoader: z.boolean().default(true),
+    mcpLoader: z.boolean().default(true),
+    dataStorage: z.boolean().default(true),
+    toggles: z
+      .object({
+        mcp: z.boolean().default(true),
+        commands: z.boolean().default(true),
+        skills: z.boolean().default(true),
+        agents: z.boolean().default(true),
+        hooks: z.boolean().default(true),
+        plugins: z.record(z.string(), z.boolean()).optional(),
+      })
+      .optional(),
+  })
+  .optional()
 
 export const OpenCodeXConfigSchema = z.object({
   $schema: z.string().optional(),
@@ -263,13 +302,15 @@ export const OpenCodeXConfigSchema = z.object({
   kratos: KratosConfigSchema.optional(),
   lsp: LSPConfigSchema.optional(),
   notifications: NotificationsConfigSchema.optional(),
-  enhanced: z.object({
-    enabled: z.boolean().default(true),
-    keywords: z.array(z.string()).default(["enhanced", "max", "full"]),
-    searchKeywords: z.array(z.string()).default(["search", "find", "locate"]),
-    analyzeKeywords: z.array(z.string()).default(["analyze", "examine"]),
-    thinkKeywords: z.array(z.string()).default(["think", "reason"]),
-  }).optional(),
+  enhanced: z
+    .object({
+      enabled: z.boolean().default(true),
+      keywords: z.array(z.string()).default(['enhanced', 'max', 'full']),
+      searchKeywords: z.array(z.string()).default(['search', 'find', 'locate']),
+      analyzeKeywords: z.array(z.string()).default(['analyze', 'examine']),
+      thinkKeywords: z.array(z.string()).default(['think', 'reason']),
+    })
+    .optional(),
   modes: ModesConfigSchema.optional(),
   skillMcp: SkillMcpConfigSchema.optional(),
   commandLoader: CommandLoaderConfigSchema.optional(),
