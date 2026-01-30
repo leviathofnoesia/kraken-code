@@ -22,6 +22,12 @@ export function createClaudeCodeHooks(
   }
 
   return {
+    config: async (cfg: any) => {
+      // Configuration hook
+      if (options?.config) {
+        Object.assign(config, options.config)
+      }
+    },
     "tool.execute.before": async (input, output) => {
       if (!config.enabled) return
       console.log("[claude-code-hooks] Processing tool execution")
