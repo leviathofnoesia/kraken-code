@@ -7,8 +7,8 @@
  * - Refactor operations can optionally be allowed without new tests
  */
 
-import type { Hooks, PluginInput } from '@opencode-ai/plugin'
-import type { OpenCodeXConfig } from '../../config/schema'
+import type { Hooks } from '@opencode-ai/plugin'
+import { getBlitzkriegConfig as getConfig } from '../../config/manager'
 import {
   evaluateTddCompliance,
   isTestFile,
@@ -51,34 +51,26 @@ function clearSession(sessionId: string): void {
 }
 
 /**
- * Get configuration from the plugin input
- */
-function getBlitzkriegConfig(input: PluginInput): OpenCodeXConfig['blitzkrieg'] | undefined {
-  const config = (input as any).config as OpenCodeXConfig | undefined
-  return config?.blitzkrieg
-}
-
-/**
  * Get previous file content (for refactor detection)
  * This is a simplified implementation - in production would read from file system
  */
 async function getPreviousFileContent(filePath: string): Promise<string | undefined> {
-  // In a real implementation, this would read the file from the filesystem
+  // In a real implementation, this would read file from filesystem
   // For now, we return undefined which means we can't detect refactors
   return undefined
 }
 
 /**
- * Create the TDD workflow enforcer hook
+ * Create TDD workflow enforcer hook
  */
-export function createBlitzkriegTddWorkflowHook(input: PluginInput): Hooks {
+export function createBlitzkriegTddWorkflowHook(): Hooks {
   return {
     /**
      * Execute before tool operations
      * Validates TDD compliance for edit/write operations on implementation files
      */
     'tool.execute.before': async (toolInput, toolOutput) => {
-      const blitzkriegConfig = getBlitzkriegConfig(input)
+      const blitzkriegConfig = getConfig()
 
       // Skip if Blitzkrieg is disabled
       if (!blitzkriegConfig?.enabled) {
@@ -133,7 +125,7 @@ export function createBlitzkriegTddWorkflowHook(input: PluginInput): Hooks {
       const operation: FileOperationContext = {
         filePath,
         operation: toolName as 'read' | 'write' | 'edit',
-        content: args?.content as string || '',
+        content: (args?.content as string) || '',
         timestamp: new Date().toISOString(),
       }
 
@@ -143,13 +135,13 @@ export function createBlitzkriegTddWorkflowHook(input: PluginInput): Hooks {
         {
           sessionId,
           startTime: new Date().toISOString(),
-          filesWritten: session.implementationFilesWritten.map(fp => ({
+          filesWritten: session.implementationFilesWritten.map((fp) => ({
             filePath: fp,
             operation: 'write',
             content: '',
             timestamp: new Date().toISOString(),
           })),
-          testsWritten: session.testsWritten.map(tp => ({
+          testsWritten: session.testsWritten.map((tp) => ({
             filePath: tp,
             operation: 'write',
             content: '',
@@ -165,7 +157,7 @@ export function createBlitzkriegTddWorkflowHook(input: PluginInput): Hooks {
           },
         },
         enforcementConfig,
-        previousContent
+        previousContent,
       )
 
       // Track the implementation file
@@ -176,7 +168,7 @@ export function createBlitzkriegTddWorkflowHook(input: PluginInput): Hooks {
         // Block with detailed error message
         const violations = result.violations.map((v: any) => `${v.type}: ${v.file}`).join('; ')
         throw new Error(
-          `Blitzkrieg TDD Violation: ${violations}. ${result.reason}\n\nSuggestions:\n${result.suggestions.map((s: string) => `  - ${s}`).join('\n')}`
+          `Blitzkrieg TDD Violation: ${violations}. ${result.reason}\n\nSuggestions:\n${result.suggestions.map((s: string) => `  - ${s}`).join('\n')}`,
         )
       }
 
@@ -202,8 +194,8 @@ export function createBlitzkriegTddWorkflowHook(input: PluginInput): Hooks {
 /**
  * Create base hook using standard hook pattern
  */
-export function createHook(input: PluginInput): Hooks {
-  return createBlitzkriegTddWorkflowHook(input)
+export function createHook(): Hooks {
+  return createBlitzkriegTddWorkflowHook()
 }
 
 /**

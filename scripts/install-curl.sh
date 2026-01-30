@@ -67,7 +67,27 @@ fi
 # Clean up
 rm -f "$TEMP_TGZ"
 
-# Get the actual package name (might be scoped)
+# Get kraken-code CLI path
+KRAKEN_CLI="$PACKAGE_DIR/dist/cli/index.js"
+
+# Initialize Kraken Code configuration
+if [ -f "$KRAKEN_CLI" ]; then
+  echo ""
+  echo "Initializing Kraken Code configuration..."
+  bun run "$KRAKEN_CLI" init --minimal
+  if [ $? -eq 0 ]; then
+    echo ""
+    echo "✓ Kraken Code initialized successfully!"
+  else
+    echo ""
+    echo "⚠️  Initialization failed. Run manually: kraken-code init --minimal"
+  fi
+else
+  echo ""
+  echo "⚠️  CLI not found. Run manually: kraken-code init --minimal"
+fi
+
+# Get actual package name (might be scoped)
 ACTUAL_PACKAGE_NAME=$(ls "$PLUGINS_DIR" | grep -v "^package$" | head -1)
 
 if [ -z "$ACTUAL_PACKAGE_NAME" ]; then
@@ -83,11 +103,9 @@ echo ""
 echo "Kraken Code v${VERSION} installed to: $PLUGINS_DIR/$ACTUAL_PACKAGE_NAME"
 echo ""
 echo "Next Steps:"
-echo "1. Restart OpenCode to load the plugin"
-echo "2. Configure Kraken Code with: kraken-code init"
-echo "3. Check status with: kraken-code doctor"
-echo ""
-echo "For configuration options, run: kraken-code --help"
+echo "1. Restart OpenCode to load plugin"
+echo "2. Use 'blitz' or 'blz' to activate Blitzkrieg Mode"
+echo "3. Run: kraken-code --help for more options"
 echo ""
 echo "Documentation: https://github.com/leviathofnoesia/kraken-code"
 echo ""

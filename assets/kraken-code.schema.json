@@ -1656,6 +1656,15 @@
     "modes": {
       "type": "object",
       "properties": {
+        "blitzkrieg": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "type": "boolean"
+            }
+          }
+        },
         "ultrawork": {
           "type": "object",
           "properties": {

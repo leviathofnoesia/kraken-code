@@ -11,6 +11,7 @@
 
 import type { Hooks, PluginInput } from '@opencode-ai/plugin'
 import type { OpenCodeXConfig } from '../../config/schema'
+import { getBlitzkriegConfig as getConfig } from '../../config/manager'
 import {
   verifyEvidence,
   createEvidenceReport,
@@ -49,7 +50,7 @@ export function registerTestFiles(taskId: string, testFilePaths: string[]): void
  */
 export function registerEvidence(
   taskId: string,
-  evidence: Partial<BlitzkriegEvidenceReport>
+  evidence: Partial<BlitzkriegEvidenceReport>,
 ): void {
   if (!evidenceStore[taskId]) {
     evidenceStore[taskId] = {
@@ -62,14 +63,6 @@ export function registerEvidence(
     ...evidence,
     testFilePaths: [...existing.testFilePaths, ...(evidence.testFilePaths || [])],
   }
-}
-
-/**
- * Get configuration from the plugin input
- */
-function getBlitzkriegConfig(input: PluginInput): OpenCodeXConfig['blitzkrieg'] | undefined {
-  const config = (input as any).config as OpenCodeXConfig | undefined
-  return config?.blitzkrieg
 }
 
 /**
@@ -91,14 +84,14 @@ function isTaskCompletion(toolName: string): boolean {
 /**
  * Create the evidence verifier hook
  */
-export function createBlitzkriegEvidenceVerifierHook(input: PluginInput): Hooks {
+export function createBlitzkriegEvidenceVerifierHook(): Hooks {
   return {
     /**
      * Execute before tool operations
      * Verifies evidence exists before task completion
      */
     'tool.execute.before': async (toolInput, toolOutput) => {
-      const blitzkriegConfig = getBlitzkriegConfig(input)
+      const blitzkriegConfig = getConfig()
 
       // Skip if Blitzkrieg is disabled
       if (!blitzkriegConfig?.enabled) {
@@ -129,7 +122,7 @@ export function createBlitzkriegEvidenceVerifierHook(input: PluginInput): Hooks 
       // If no evidence stored, check if this is allowed
       if (!taskEvidence) {
         throw new Error(
-          `Blitzkrieg Evidence Verification: No evidence registered for task "${taskId}". Please register test files and evidence before marking task complete.`
+          `Blitzkrieg Evidence Verification: No evidence registered for task "${taskId}". Please register test files and evidence before marking task complete.`,
         )
       }
 
@@ -139,8 +132,9 @@ export function createBlitzkriegEvidenceVerifierHook(input: PluginInput): Hooks 
       // For now, skip verification and just check if evidence exists
       const evidence = taskEvidence.evidence || createEvidenceReport()
 
-      console.log(`[blitzkrieg-evidence-verifier] Evidence verification is not fully implemented. Skipping verification for task ${taskId}.`)
-
+      console.log(
+        `[blitzkrieg-evidence-verifier] Evidence verification is not fully implemented. Skipping verification for task ${taskId}.`,
+      )
     },
 
     /**
@@ -148,7 +142,7 @@ export function createBlitzkriegEvidenceVerifierHook(input: PluginInput): Hooks 
      * Could be used to automatically capture evidence from test runs
      */
     'tool.execute.after': async (toolInput, toolOutput) => {
-      const blitzkriegConfig = getBlitzkriegConfig(input)
+      const blitzkriegConfig = getConfig()
 
       // Skip if Blitzkrieg is disabled
       if (!blitzkriegConfig?.enabled) {
@@ -202,8 +196,8 @@ function isTestCommand(command: string): boolean {
 /**
  * Create base hook using standard hook pattern
  */
-export function createHook(input: PluginInput): Hooks {
-  return createBlitzkriegEvidenceVerifierHook(input)
+export function createHook(): Hooks {
+  return createBlitzkriegEvidenceVerifierHook()
 }
 
 /**

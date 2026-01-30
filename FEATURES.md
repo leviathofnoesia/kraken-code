@@ -172,12 +172,12 @@
 - Generated schema: `assets/kraken-code.schema.json`
 
 **Key Config Sections**:
-- `kraken_code` - Main configuration object
-  - `agents` - Agent configuration (default, enabled)
-  - `blitzkrieg` - Blitzkrieg TDD enforcement
-  - `skills` - Skills system config
-  - `kratos` - Kratos memory config
-  - `mcp` - MCP server config
+- `agents` - Agent configuration
+- `blitzkrieg` - Blitzkrieg TDD enforcement
+- `kratos` - Kratos memory config
+- `mcp` - MCP server config
+- `modes` - Special mode configurations (ultrawork, search, analyze, ultrathink)
+- `skillMcp` - Skill MCP server config
   - `compression` - Context compression
   - `enhanced` - Enhanced mode
 

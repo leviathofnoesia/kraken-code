@@ -14,7 +14,20 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "lib": ["ESNext"],
-    "types": ["bun-types"]
+    "types": ["bun-types"],
+    "paths": {
+      "@kraken/*": ["src/*"],
+      "@kraken/agents/*": ["src/agents/*"],
+      "@kraken/hooks/*": ["src/hooks/*"],
+      "@kraken/tools/*": ["src/tools/*"],
+      "@kraken/features/*": ["src/features/*"],
+      "@kraken/storage/*": ["src/storage/*"],
+      "@kraken/config/*": ["src/config/*"],
+      "@kraken/types/*": ["src/types/*"],
+      "@kraken/cli/*": ["src/cli/*"],
+      "@kraken/auth/*": ["src/auth/*"],
+      "@kraken/utils/*": ["src/utils/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -1278,7 +1278,7 @@ async function runInstall() {
 if (false) {}
 
 // src/cli/init.ts
-import { writeFileSync as writeFileSync2, existsSync as existsSync6, mkdirSync } from "fs";
+import { writeFileSync as writeFileSync2, existsSync as existsSync6, mkdirSync, readFileSync as readFileSync6 } from "fs";
 import * as path4 from "path";
 import * as os4 from "os";
 import color4 from "picocolors";
@@ -1286,59 +1286,98 @@ var __dirname = "/home/leviath/kraken-code/src/cli";
 async function runInit(options) {
   console.log(color4.cyan("\uD83D\uDC19 Initializing Kraken Code..."));
   const configDir = path4.join(os4.homedir(), ".config", "opencode");
-  const configPath = path4.join(configDir, "opencode.json");
+  const opencodeConfigPath = path4.join(configDir, "opencode.json");
+  const krakenConfigPath = path4.join(configDir, "kraken-code.json");
   if (!existsSync6(configDir)) {
     mkdirSync(configDir, { recursive: true });
   }
   const isMinimal = options.minimal;
   const isFull = options.full;
-  const defaultConfig = {
-    plugin: ["kraken-code"],
-    kraken_code: {
-      agents: {
-        default: "kraken",
-        enabled: isMinimal ? ["kraken", "atlas"] : ["kraken", "atlas", "nautilus", "abyssal", "coral", "siren", "scylla", "pearl"]
+  const krakenConfig = {
+    default_agent: "Kraken",
+    blitzkrieg: {
+      enabled: true,
+      testPlan: {
+        requiredBeforeImplementation: true,
+        minTestCases: 3,
+        requireCoverageThreshold: true,
+        coverageThresholdPercent: 80
       },
+      tddWorkflow: {
+        enforceWriteTestFirst: true,
+        forbidCodeWithoutTest: true,
+        allowRefactorWithoutTest: true
+      },
+      evidence: {
+        requireTestExecutionEvidence: true,
+        requireAssertionEvidence: true,
+        requireEdgeCaseEvidence: true
+      },
+      plannerConstraints: {
+        requireTestStep: true,
+        requireVerificationStep: true,
+        maxImplementationStepComplexity: 3
+      }
+    },
+    kratos: {
+      enabled: true,
+      autoSave: true,
+      storagePath: "~/.kratos"
+    },
+    modes: {
       blitzkrieg: {
-        enabled: true,
-        testPlan: {
-          requiredBeforeImplementation: !isMinimal,
-          minTestCases: 3,
-          requireCoverageThreshold: !isMinimal,
-          coverageThresholdPercent: 80
-        },
-        tddWorkflow: {
-          enforceWriteTestFirst: !isMinimal,
-          forbidCodeWithoutTest: !isMinimal,
-          allowRefactorWithoutTest: true
-        },
-        evidence: {
-          requireTestExecutionEvidence: !isMinimal,
-          requireAssertionEvidence: !isMinimal,
-          requireEdgeCaseEvidence: !isMinimal
-        },
-        plannerConstraints: {
-          requireTestStep: !isMinimal,
-          requireVerificationStep: !isMinimal,
-          maxImplementationStepComplexity: 3
-        }
+        enabled: true
       },
-      skills: {
-        autoLoad: true,
-        directories: [
-          path4.join(configDir, "skill"),
-          path4.join(__dirname, "../../templates/skills")
-        ]
-      },
-      kratos: {
+      ultrathink: {
         enabled: true,
-        autoSave: true,
-        storagePath: path4.join(os4.homedir(), ".kratos")
+        thinkingBudget: 32000,
+        autoVariantSwitch: true
+      },
+      ultrawork: {
+        enabled: true,
+        parallelAgents: 4
+      },
+      search: {
+        enabled: true,
+        maxResults: 50
+      },
+      analyze: {
+        enabled: true,
+        consultationPhases: 3
       }
     }
   };
-  writeFileSync2(configPath, JSON.stringify(defaultConfig, null, 2), "utf-8");
-  console.log(color4.green(`\u2713 Configuration written to ${configPath}`));
+  let existingKrakenConfig = {};
+  if (existsSync6(krakenConfigPath)) {
+    try {
+      existingKrakenConfig = JSON.parse(readFileSync6(krakenConfigPath, "utf-8"));
+    } catch {
+      existingKrakenConfig = {};
+    }
+  }
+  const mergedKrakenConfig = {
+    ...krakenConfig,
+    ...existingKrakenConfig
+  };
+  writeFileSync2(krakenConfigPath, JSON.stringify(mergedKrakenConfig, null, 2));
+  console.log(color4.green(`\u2713 Kraken Code configuration written to ${krakenConfigPath}`));
+  let existingOpencodeConfig = {};
+  if (existsSync6(opencodeConfigPath)) {
+    try {
+      existingOpencodeConfig = JSON.parse(readFileSync6(opencodeConfigPath, "utf-8"));
+    } catch {
+      existingOpencodeConfig = {};
+    }
+  }
+  const mergedOpencodeConfig = {
+    ...existingOpencodeConfig,
+    plugin: Array.from(new Set([
+      ...existingOpencodeConfig.plugin || [],
+      "kraken-code"
+    ]))
+  };
+  writeFileSync2(opencodeConfigPath, JSON.stringify(mergedOpencodeConfig, null, 2));
+  console.log(color4.green(`\u2713 OpenCode configuration updated at ${opencodeConfigPath}`));
   await installSkillTemplates();
   console.log(color4.green(`
 \uD83C\uDF89 Kraken Code initialized!`));
@@ -1380,49 +1419,77 @@ async function installSkillTemplates() {
 }
 
 // src/cli/status.ts
-import { readFileSync as readFileSync6, existsSync as existsSync7 } from "fs";
+import { readFileSync as readFileSync7, existsSync as existsSync7 } from "fs";
 import * as path5 from "path";
 import * as os5 from "os";
 import color5 from "picocolors";
 async function runStatus() {
   console.log(color5.cyan(`\uD83D\uDC19 Kraken Code Status
 `));
-  const configPath = path5.join(os5.homedir(), ".config", "opencode", "opencode.json");
-  if (!existsSync7(configPath)) {
-    console.log(color5.red("\u2717 Configuration not found"));
+  const opencodeConfigPath = path5.join(os5.homedir(), ".config", "opencode", "opencode.json");
+  const krakenConfigPath = path5.join(os5.homedir(), ".config", "opencode", "kraken-code.json");
+  if (!existsSync7(opencodeConfigPath)) {
+    console.log(color5.red("\u2717 OpenCode configuration not found"));
     console.log(color5.dim("  Run: kraken-code init"));
     return;
   }
-  const config2 = JSON.parse(readFileSync6(configPath, "utf-8"));
-  const kc = config2.kraken_code || {};
+  const opencodeConfig = JSON.parse(readFileSync7(opencodeConfigPath, "utf-8"));
+  const isPluginRegistered = opencodeConfig.plugin?.includes("kraken-code") || false;
+  console.log(color5.bold("Plugin:"));
+  if (isPluginRegistered) {
+    console.log(color5.green("  \u2713 Registered: kraken-code"));
+  } else {
+    console.log(color5.red("  \u2717 Not registered"));
+    console.log(color5.dim("  Run: kraken-code init"));
+  }
+  if (!existsSync7(krakenConfigPath)) {
+    console.log(color5.yellow(`
+\u26A0 Kraken Code configuration not found`));
+    console.log(color5.dim("  Run: kraken-code init"));
+    return;
+  }
+  const config2 = JSON.parse(readFileSync7(krakenConfigPath, "utf-8"));
   console.log(color5.bold("Plugin:"));
   console.log(color5.green("  \u2713 Registered: kraken-code"));
-  if (kc.agents) {
+  if (config2.default_agent) {
     console.log(color5.bold(`
-Agents:`));
-    console.log(`  Default: ${kc.agents.default}`);
-    console.log(`  Enabled: ${kc.agents.enabled.join(", ")}`);
+Default Agent:`));
+    console.log(`  ${config2.default_agent}`);
   }
-  if (kc.blitzkrieg) {
-    const status = kc.blitzkrieg.enabled ? color5.green("\u2713 Enabled") : color5.red("\u2717 Disabled");
+  if (config2.agents) {
+    const enabledAgents = Object.entries(config2.agents).filter(([_, agent]) => !agent.disable).map(([name]) => name);
+    if (enabledAgents.length > 0) {
+      console.log(color5.bold(`
+Enabled Agents:`));
+      console.log(`  ${enabledAgents.join(", ")}`);
+    }
+  }
+  if (config2.blitzkrieg) {
+    const status = config2.blitzkrieg.enabled ? color5.green("\u2713 Enabled") : color5.red("\u2717 Disabled");
     console.log(color5.bold(`
 Blitzkrieg Mode:`));
     console.log(`  Status: ${status}`);
     console.log(color5.dim("  Activate with: 'blitz' or 'blz'"));
   }
-  if (kc.kratos) {
-    const status = kc.kratos.enabled ? color5.green("\u2713 Enabled") : color5.red("\u2717 Disabled");
+  if (config2.kratos) {
+    const status = config2.kratos.enabled ? color5.green("\u2713 Enabled") : color5.red("\u2717 Disabled");
     console.log(color5.bold(`
 Memory (Kratos):`));
     console.log(`  Status: ${status}`);
-    console.log(`  Storage: ${kc.kratos.storagePath}`);
+    console.log(`  Storage: ${config2.kratos.storagePath || config2.kratos.storagePath || "~/.kratos"}`);
   }
-  if (kc.skills) {
-    const status = kc.skills.autoLoad ? color5.green("\u2713 Auto-load") : color5.red("\u2717 Manual");
-    console.log(color5.bold(`
-Skills:`));
-    console.log(`  ${status}`);
-    console.log(`  Directories: ${kc.skills.directories?.length || 0}`);
+  if (config2.modes) {
+    const modeNames = [];
+    for (const [modeName, modeConfig] of Object.entries(config2.modes)) {
+      if (typeof modeConfig === "object" && modeConfig && modeConfig.enabled) {
+        modeNames.push(modeName);
+      }
+    }
+    if (modeNames.length > 0) {
+      console.log(color5.bold(`
+Active Modes:`));
+      console.log(`  ${modeNames.join(", ")}`);
+    }
   }
 }
 // package.json

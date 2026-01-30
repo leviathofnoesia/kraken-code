@@ -1,6 +1,7 @@
 import type { AgentConfig } from "@opencode-ai/sdk"
 import type { AgentPromptMetadata, AgentOverrides } from "./types"
 import { createKrakenConfig } from "./agents/kraken"
+import { createAtlasConfig } from "./agents/atlas"
 import { createMaelstromConfig } from "./agents/maelstrom"
 import { createNautilusConfig } from "./agents/nautilus"
 import { createScyllaConfig } from "./agents/scylla"
@@ -10,7 +11,6 @@ import { createCoralConfig } from "./agents/coral"
 import { createSirenConfig } from "./agents/siren"
 import { createLeviathanConfig } from "./agents/leviathan"
 import { createPearlConfig } from "./agents/pearl"
-import { createAtlasConfig } from "./agents/atlas"
 
 export interface AvailableAgent {
   name: string
@@ -18,8 +18,9 @@ export interface AvailableAgent {
   metadata: AgentPromptMetadata
 }
 
-const agentFactories: Record<string, (model?: string) => AgentConfig> = {
+const agentFactories: Record<string, (...args: any[]) => AgentConfig> = {
   Kraken: createKrakenConfig,
+  Atlas: createAtlasConfig,
   Maelstrom: createMaelstromConfig,
   Nautilus: createNautilusConfig,
   Scylla: createScyllaConfig,
@@ -32,6 +33,39 @@ const agentFactories: Record<string, (model?: string) => AgentConfig> = {
 }
 
 const agentMetadata: Record<string, AgentPromptMetadata> = {
+  Atlas: {
+    category: "advisor",
+    cost: "EXPENSIVE",
+    promptAlias: "Atlas",
+    triggers: [
+      {
+        domain: "Architecture",
+        trigger: "System design, structural analysis, architectural decisions, trade-offs",
+      },
+      {
+        domain: "Design Patterns",
+        trigger: "Pattern recognition, anti-patterns detection, design decisions",
+      },
+    ],
+    useWhen: [
+      "Complex architectural questions",
+      "Large-scale refactoring planning",
+      "Technology selection and migration",
+      "Performance optimization at system level",
+      "Multi-system tradeoffs",
+      "Structural issues (God classes, circular dependencies)",
+      "Missing abstractions",
+      "Design pattern selection",
+    ],
+    avoidWhen: [
+      "Simple implementation questions",
+      "Quick fixes that don't affect architecture",
+      "Questions answerable from code you've read",
+      "Trivial decisions (variable names, formatting)",
+      "Things you can infer from existing code patterns",
+    ],
+    keyTrigger: "Architecture/design decision → consult Atlas",
+  },
   Maelstrom: {
     category: "advisor",
     cost: "EXPENSIVE",

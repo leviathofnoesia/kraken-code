@@ -62,18 +62,16 @@ Blitzkrieg mode is **enabled by default** (opt-out). Configure in `~/.config/ope
 
 ```json
 {
-  "kraken_code": {
-    "blitzkrieg": {
-      "enabled": true,
-      "testPlan": {
-        "requiredBeforeImplementation": true,
-        "minTestCases": 3,
-        "coverageThresholdPercent": 80
-      },
-      "tddWorkflow": {
-        "enforceWriteTestFirst": true,
-        "forbidCodeWithoutTest": true
-      }
+  "blitzkrieg": {
+    "enabled": true,
+    "testPlan": {
+      "requiredBeforeImplementation": true,
+      "minTestCases": 3,
+      "coverageThresholdPercent": 80
+    },
+    "tddWorkflow": {
+      "enforceWriteTestFirst": true,
+      "forbidCodeWithoutTest": true
     }
   }
 }

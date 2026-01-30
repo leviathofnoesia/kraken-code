@@ -3,16 +3,20 @@ import * as os from "os"
 import { Client } from "@modelcontextprotocol/sdk/client"
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 
-type Tool = any
-type Resource = any
-type Prompt = any
-
 import type {
   SkillMcpClientInfo,
   SkillMcpConfig,
 } from "./mcp-config-parser"
+import { createLogger } from "../../utils/logger"
 
-const IDLE_TIMEOUT = 5 * 60 * 1000
+const logger = createLogger("skill-mcp-manager")
+
+type Tool = any
+type Resource = any
+type Prompt = any
+type MCPArguments = any
+
+const IDLE_TIMEOUT =5 * 60 * 1000
 
 interface PendingConnection {
   promise: Promise<Client>
@@ -34,24 +38,24 @@ export class SkillMcpManager {
 
   async getOrCreateClient(
     info: SkillMcpClientInfo,
-    config: any
+    config: unknown
   ): Promise<Client> {
     const { serverName } = info
     const key = `${serverName}:${info.command}`
 
     if (this.clients.has(key)) {
       const clientInfo = this.clients.get(key)!
-      console.log(`[skill-mcp-manager] Reusing existing client for ${serverName}`)
+      logger.debug(`Reusing existing client for ${serverName}`)
       clientInfo.lastUsed = Date.now()
       return clientInfo.client
     }
 
     if (this.pendingConnections.has(key)) {
-      console.log(`[skill-mcp-manager] Reusing pending connection for ${serverName}`)
+      logger.debug(`Reusing pending connection for ${serverName}`)
       return this.pendingConnections.get(key)!.promise
     }
 
-    console.log(`[skill-mcp-manager] Creating new MCP client for ${serverName}`)
+    logger.debug(`Creating new MCP client for ${serverName}`)
 
     const client = new Client({
       name: serverName,
@@ -75,7 +79,7 @@ export class SkillMcpManager {
     this.clients.set(key, clientInfo)
     this.pendingConnections.delete(key)
 
-    console.log(`[skill-mcp-manager] Connected to ${serverName} MCP server`)
+    logger.debug(`Connected to ${serverName} MCP server`)
 
     this.startIdleCheck(serverName, clientInfo)
 
@@ -83,15 +87,15 @@ export class SkillMcpManager {
   }
 
   async disconnectSession(sessionID: string): Promise<void> {
-    console.log(`[skill-mcp-manager] Disconnecting MCP clients for session ${sessionID}`)
+    logger.info(`Disconnecting MCP clients for session ${sessionID}`)
 
     for (const [key, clientInfo] of this.clients.entries()) {
       if (clientInfo.cleanupTimer) clearTimeout(clientInfo.cleanupTimer)
       try {
         await clientInfo.client.close()
-        console.log(`[skill-mcp-manager] Disconnected from ${key}`)
+        logger.debug(`Disconnected from ${key}`)
       } catch (error) {
-        console.error(`[skill-mcp-manager] Error disconnecting from ${key}:`, error)
+        logger.error(`Error disconnecting from ${key}:`, error)
       }
       this.clients.delete(key)
     }
@@ -100,16 +104,16 @@ export class SkillMcpManager {
   }
 
   async disconnectAll(): Promise<void> {
-    console.log("[skill-mcp-manager] Disconnecting all MCP clients")
+    logger.info("Disconnecting all MCP clients")
 
     for (const [key] of this.clients.keys()) {
       const clientInfo = this.clients.get(key)!
       if (clientInfo.cleanupTimer) clearTimeout(clientInfo.cleanupTimer)
       try {
         await clientInfo.client.close()
-        console.log(`[skill-mcp-manager] Disconnected from ${key}`)
+        logger.debug(`Disconnected from ${key}`)
       } catch (error) {
-        console.error(`[skill-mcp-manager] Error disconnecting from ${key}:`, error)
+        logger.error(`Error disconnecting from ${key}:`, error)
       }
       this.clients.delete(key)
     }
@@ -120,60 +124,60 @@ export class SkillMcpManager {
 
   async listTools(
     info: SkillMcpClientInfo,
-    context: any
+    context: unknown
   ): Promise<Tool[]> {
     const client = await this.getOrCreateClient(info, context)
 
     try {
       const result = await client.listTools()
       const tools = result.tools ?? []
-      console.log(`[skill-mcp-manager] Listed ${tools.length} tools from ${info.serverName}`)
+      logger.debug(`Listed ${tools.length} tools from ${info.serverName}`)
       return tools
     } catch (error) {
-      console.error(`[skill-mcp-manager] Error listing tools from ${info.serverName}:`, error)
+      logger.error(`Error listing tools from ${info.serverName}:`, error)
       return []
     }
   }
 
   async listResources(
     info: SkillMcpClientInfo,
-    context: any
+    context: unknown
   ): Promise<Resource[]> {
     const client = await this.getOrCreateClient(info, context)
 
     try {
       const result = await client.listResources()
       const resources = result.resources ?? []
-      console.log(`[skill-mcp-manager] Listed ${resources.length} resources from ${info.serverName}`)
+      logger.debug(`Listed ${resources.length} resources from ${info.serverName}`)
       return resources
     } catch (error) {
-      console.error(`[skill-mcp-manager] Error listing resources from ${info.serverName}:`, error)
+      logger.error(`Error listing resources from ${info.serverName}:`, error)
       return []
     }
   }
 
   async listPrompts(
     info: SkillMcpClientInfo,
-    context: any
+    context: unknown
   ): Promise<Prompt[]> {
     const client = await this.getOrCreateClient(info, context)
 
     try {
       const result = await client.listPrompts()
       const prompts = result.prompts ?? []
-      console.log(`[skill-mcp-manager] Listed ${prompts.length} prompts from ${info.serverName}`)
+      logger.debug(`Listed ${prompts.length} prompts from ${info.serverName}`)
       return prompts
     } catch (error) {
-      console.error(`[skill-mcp-manager] Error listing prompts from ${info.serverName}:`, error)
+      logger.error(`Error listing prompts from ${info.serverName}:`, error)
       return []
     }
   }
 
   async callTool(
     info: SkillMcpClientInfo,
-    context: any,
+    context: { [key: string]: unknown } | undefined,
     name: string,
-    args: any
+    args: { [key: string]: unknown }
   ): Promise<unknown> {
     const client = await this.getOrCreateClient(info, context)
 
@@ -182,34 +186,34 @@ export class SkillMcpManager {
         name,
         arguments: args,
       })
-      console.log(`[skill-mcp-manager] Called tool ${name} on ${info.serverName}`)
+      logger.debug(`Called tool ${name} on ${info.serverName}`)
       return result
     } catch (error) {
-      console.error(`[skill-mcp-manager] Error calling tool ${name} on ${info.serverName}:`, error)
+      logger.error(`Error calling tool ${name} on ${info.serverName}:`, error)
       return { error: error instanceof Error ? error.message : String(error) }
     }
   }
 
   async readResource(
     info: SkillMcpClientInfo,
-    context: any,
+    context: { [key: string]: unknown } | undefined,
     uri: string
   ): Promise<unknown> {
     const client = await this.getOrCreateClient(info, context)
 
     try {
       const result = await client.readResource({ uri })
-      console.log(`[skill-mcp-manager] Read resource ${uri} from ${info.serverName}`)
+      logger.debug(`Read resource ${uri} from ${info.serverName}`)
       return result
     } catch (error) {
-      console.error(`[skill-mcp-manager] Error reading resource ${uri} from ${info.serverName}:`, error)
+      logger.error(`Error reading resource ${uri} from ${info.serverName}:`, error)
       return { error: error instanceof Error ? error.message : String(error) }
     }
   }
 
   async getPrompt(
     info: SkillMcpClientInfo,
-    context: any,
+    context: unknown,
     name: string,
     args: any
   ): Promise<unknown> {
@@ -220,10 +224,10 @@ export class SkillMcpManager {
         name,
         arguments: args,
       })
-      console.log(`[skill-mcp-manager] Got prompt ${name} from ${info.serverName}`)
+      logger.debug(`Got prompt ${name} from ${info.serverName}`)
       return result
     } catch (error) {
-      console.error(`[skill-mcp-manager] Error getting prompt ${name} from ${info.serverName}:`, error)
+      logger.error(`Error getting prompt ${name} from ${info.serverName}:`, error)
       return { error: error instanceof Error ? error.message : String(error) }
     }
   }
@@ -232,10 +236,10 @@ export class SkillMcpManager {
     clientInfo.cleanupTimer = setTimeout(() => {
       const idleTime = Date.now() - clientInfo.lastUsed
 
-      console.log(`[skill-mcp-manager] Checking idle status for ${serverName}: ${idleTime}ms idle`)
+      logger.debug(`Checking idle status for ${serverName}: ${idleTime}ms idle`)
 
       if (idleTime >= IDLE_TIMEOUT) {
-        console.log(`[skill-mcp-manager] Disconnecting ${serverName} due to idle (${Math.floor(idleTime / 1000 / 60)}min)`)
+        logger.debug(`Disconnecting ${serverName} due to idle (${Math.floor(idleTime / 1000 / 60)}min)`)
         this.disconnectClientInternal(serverName, clientInfo)
       }
     }, 60000)
@@ -248,9 +252,9 @@ export class SkillMcpManager {
 
     try {
       clientInfo.client.close()
-      console.log(`[skill-mcp-manager] Disconnected from ${serverName}`)
+      logger.debug(`Disconnected from ${serverName}`)
     } catch (error) {
-      console.error(`[skill-mcp-manager] Error disconnecting from ${serverName}:`, error)
+      logger.error(`Error disconnecting from ${serverName}:`, error)
     }
 
     const key = `${serverName}:1.0.0`
@@ -259,7 +263,7 @@ export class SkillMcpManager {
 
   getConnectedServers(): string[] {
     const servers = Array.from(this.clients.keys())
-    console.log(`[skill-mcp-manager] Connected servers: ${servers.length}`)
+    logger.debug(`Connected servers: ${servers.length}`)
     return servers
   }
 
