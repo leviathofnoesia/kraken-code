@@ -1,29 +1,72 @@
 /**
  * Memory Integration
  *
- * Provides memory functionality using kratos-mcp package.
- * Kratos is the primary memory system (Obsidian removed per requirements).
+ * Provides a native memory system for Kraken Code.
  */
 
 export interface MemoryProvider {
   name: string
 }
 
-export class KratosMemory implements MemoryProvider {
-  name = "Kratos"
-  
-  async store(key: string, value: any): Promise<void> {
-    // Use kratos-mcp tools via skills
-    console.log(`[KratosMemory] Delegating to kratos-mcp tools`)
+export type MemoryImportance = "low" | "medium" | "high"
+
+export interface MemoryEntryInput {
+  summary: string
+  content: string
+  tags?: string[]
+  importance?: MemoryImportance
+}
+
+export interface MemoryEntry extends MemoryEntryInput {
+  id: string
+  createdAt: string
+}
+
+const memoryEntries: MemoryEntry[] = []
+
+export class NativeMemory implements MemoryProvider {
+  name = "Native"
+
+  async store(_key: string, _value: any): Promise<void> {
+    return
   }
 
-  async retrieve(key: string): Promise<any> {
-    // Use kratos-mcp tools via skills
-    console.log(`[KratosMemory] Delegating to kratos-mcp tools`)
+  async retrieve(_key: string): Promise<any> {
     return null
   }
 }
 
 export const memory = {
-  kratos: new KratosMemory()
+  native: new NativeMemory()
+}
+
+export async function initializeMemory(): Promise<{ ready: boolean }> {
+  return { ready: true }
+}
+
+export async function saveMemory(input: MemoryEntryInput): Promise<MemoryEntry> {
+  const entry: MemoryEntry = {
+    id: `mem_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    createdAt: new Date().toISOString(),
+    tags: input.tags ?? [],
+    importance: input.importance ?? "medium",
+    summary: input.summary,
+    content: input.content,
+  }
+
+  memoryEntries.push(entry)
+  return entry
+}
+
+export async function searchMemories(query: string): Promise<MemoryEntry[]> {
+  const normalizedQuery = query.toLowerCase()
+
+  return memoryEntries.filter((entry) => {
+    const tags = entry.tags?.join(" ").toLowerCase() ?? ""
+    return (
+      entry.summary.toLowerCase().includes(normalizedQuery) ||
+      entry.content.toLowerCase().includes(normalizedQuery) ||
+      tags.includes(normalizedQuery)
+    )
+  })
 }

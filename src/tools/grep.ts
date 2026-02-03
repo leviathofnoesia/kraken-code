@@ -1,6 +1,7 @@
 import { tool } from "@opencode-ai/plugin"
 import { z } from "zod"
 import { execFile } from "node:child_process"
+import { existsSync } from "node:fs"
 import { promisify } from "node:util"
 
 const execFileAsync = promisify(execFile)
@@ -16,7 +17,17 @@ async function runGrep(
   pattern: string,
   options?: { path?: string; type?: string; context?: number; invert?: boolean }
 ): Promise<{ success: boolean; matches?: GrepMatch[]; count?: number; error?: string }> {
+  if (!pattern.trim()) {
+    return {
+      success: false,
+      error: "Pattern must not be empty",
+    }
+  }
+
   const args = ["--line-number", "--color=never"]
+  args.push("--max-count", "200")
+  args.push("--max-filesize", "1M")
+  args.push("--max-depth", "4")
 
   if (options?.context) {
     args.push("-C", String(options.context))
@@ -29,9 +40,8 @@ async function runGrep(
   }
 
   args.push(pattern)
-  if (options?.path) {
-    args.push(options.path)
-  }
+  const defaultPath = existsSync("src") ? "src" : process.cwd()
+  args.push(options?.path ?? defaultPath)
 
   try {
     const { stdout, stderr } = await execFileAsync("rg", args, {
