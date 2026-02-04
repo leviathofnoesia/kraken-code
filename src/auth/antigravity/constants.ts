@@ -19,8 +19,10 @@
 
 // OAuth 2.0 Client Credentials
 export const ANTIGRAVITY_CLIENT_ID =
+  process.env.ANTIGRAVITY_CLIENT_ID ??
   "REDACTED.apps.googleusercontent.com"
-export const ANTIGRAVITY_CLIENT_SECRET = "GOCSPX-REDACTED"
+export const ANTIGRAVITY_CLIENT_SECRET =
+  process.env.ANTIGRAVITY_CLIENT_SECRET ?? ""
 
 // OAuth Callback
 export const ANTIGRAVITY_CALLBACK_PORT = 51121
