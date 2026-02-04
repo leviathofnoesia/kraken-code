@@ -247,34 +247,42 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
         (async () => {
           try {
             await initializeCommandLoader()
-            logger.info('Command loader initialized')
+            logger.debug('Command loader initialized')
           } catch (e) {
-            logger.error('Error initializing command loader:', e)
+            if (process.env.ANTIGRAVITY_DEBUG === "1" || process.env.DEBUG === "1") {
+              logger.error('Error initializing command loader:', e)
+            }
           }
         })(),
         (async () => {
           try {
             await initializeSkillMcpManager()
-            logger.info('Skill MCP manager initialized')
+            logger.debug('Skill MCP manager initialized')
           } catch (e) {
-            logger.error('Error initializing skill MCP manager:', e)
+            if (process.env.ANTIGRAVITY_DEBUG === "1" || process.env.DEBUG === "1") {
+              logger.error('Error initializing skill MCP manager:', e)
+            }
           }
         })(),
         (async () => {
           try {
             const mcpConfig = pluginConfig.mcp || {}
             await initializeAllMcpServers(mcpConfig)
-            logger.info('MCP servers initialized')
+            logger.debug('MCP servers initialized')
           } catch (e) {
-            logger.error('Error initializing MCP servers:', e)
+            if (process.env.ANTIGRAVITY_DEBUG === "1" || process.env.DEBUG === "1") {
+              logger.error('Error initializing MCP servers:', e)
+            }
           }
         })(),
         (async () => {
           try {
             await initializeLearning()
-            logger.info('Learning system initialized')
+            logger.debug('Learning system initialized')
           } catch (e) {
-            logger.error('Error initializing learning system:', e)
+            if (process.env.ANTIGRAVITY_DEBUG === "1" || process.env.DEBUG === "1") {
+              logger.error('Error initializing learning system:', e)
+            }
           }
         })(),
       ])
@@ -309,7 +317,9 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
     hooks.push(createBlitzkriegEvidenceVerifierHook())
     hooks.push(createBlitzkriegPlannerConstraintsHook())
   } catch (e) {
-    logger.error('Error initializing hooks:', e)
+    if (process.env.ANTIGRAVITY_DEBUG === "1" || process.env.DEBUG === "1") {
+      logger.error('Error initializing hooks:', e)
+    }
   }
 
   // 7. Storage Hooks
@@ -324,7 +334,7 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
         await recordToolUse(sessionID, tool, output.output.toolInput, output.output.toolOutput)
       }
 
-      if (sessionID) {
+      if (sessionID && (process.env.ANTIGRAVITY_DEBUG === "1" || process.env.DEBUG === "1")) {
         console.log(`[storage-hooks] Tool ${tool} completed for session ${sessionID}`)
       }
     },
