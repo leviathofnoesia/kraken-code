@@ -64,9 +64,9 @@ Four expert modes that reconfigure the entire system:
 - **Analyze** - Deep debugging with 100+ language keyword detection
 - **Ultrathink** - Maximum reasoning budget for complex problems
 
-### 🧠 **Persistent Memory**
+### 🧠 **Unified Learning Memory**
 
-Kraken Code includes a native memory system that retains decisions and patterns across sessions.
+Kraken Code now includes a unified learning system that captures experiences, builds a knowledge graph, detects patterns, and schedules spaced repetition reviews across sessions.
 
 ### 🛠 **Smart Tooling**
 
@@ -87,17 +87,17 @@ Kraken Code includes a native memory system that retains decisions and patterns 
 
 | OpenCode Alone | With Kraken |
 |---------------|--------------|
-| Ask a question → forgets context | Ask a question → Memory retains context |
+| Ask a question → forgets context | Ask a question → Learning retains context |
 | Do work → guess what's next | Do work → Blitzkrieg enforces quality |
 | Explore → manual grep searches | Explore → Nautilus auto-fires on patterns |
 | Multi-step tasks → one-shot guessing | Multi-step tasks → Atlas breaks down properly |
-| Change scope → context bloats out | Change scope → Memory preserves key context |
+| Change scope → context bloats out | Change scope → Learning preserves key context |
 
 **The Value Proposition:**
 
 1. **You work faster** - Agents handle specialized tasks while you focus on the big picture
 2. **Your code is better** - Blitzkrieg enforces TDD, Scylla validates tests
-3. **You stop repeating work** - Memory preserves solutions, patterns, decisions
+3. **You stop repeating work** - Learning preserves solutions, patterns, decisions
 4. **You navigate larger codebases** - Nautilus finds patterns you'd miss
 5. **You get unstuck faster** - Atlas breaks down complex problems before you start
 
@@ -132,10 +132,10 @@ Production-ready TDD workflow:
 - **Evidence Verifier** - Requires passing tests before completion
 - **Planner Constraints** - Limits step complexity, prevents analysis paralysis
 
-### 💾 **Session & Memory Management**
+### 💾 **Session & Learning Management**
 
 - **Session tools** - List, read, search sessions
-- **Native memory** - Save, search, query memories naturally
+- **Learning memory** - Persist experiences, knowledge nodes, patterns, and review schedules
 - **JSONL storage** - OpenCode-compatible transcript format
 - **Todo tracking** - Persistent task tracking across sessions
 
@@ -143,7 +143,6 @@ Production-ready TDD workflow:
 
 Built-in MCP servers:
 
-- **Memory** - Native memory system
 - **Websearch** - Exa AI web search
 - **Context7** - Official documentation lookup
 - **Grep App** - GitHub code search
@@ -161,7 +160,14 @@ All configuration lives in `~/.config/opencode/opencode.json`:
     "Kraken": { "enabled": true, "model": "..." }
   },
   "blitzkrieg": { "enabled": true, "enforcement": "strict" },
-  "memory": { "enabled": true, "storagePath": "~/.kraken/memory" },
+  "learning": {
+    "enabled": true,
+    "storagePath": "~/.kraken/learning",
+    "experienceStore": { "enabled": true, "maxEntries": 2000 },
+    "knowledgeGraph": { "enabled": true, "maxNodes": 5000 },
+    "patternDetection": { "enabled": true, "minConfidence": 0.6 },
+    "spacedRepetition": { "enabled": true, "initialIntervalDays": 1 }
+  },
   "modes": {
     "blitzkrieg": { "enabled": true },
     "ultrathink": { "enabled": true, "thinkingBudget": 32000 }
@@ -191,6 +197,23 @@ kraken-code status
 
 ---
 
+## Learning Examples
+
+```bash
+learning_add_experience --summary "Migrated cache" \
+  --details "Adopted segmented cache to reduce churn" \
+  --tags ["performance", "caching"] \
+  --confidence 0.75
+
+learning_add_knowledge_node --title "Segmented cache strategy" \
+  --content "Split cache into hot/warm tiers for better retention" \
+  --tags ["performance"]
+```
+
+More examples: [docs/EXAMPLES.md](docs/EXAMPLES.md).
+
+---
+
 ## Architecture
 
 ```
@@ -200,14 +223,14 @@ src/
 │   ├── skills/      # Skills system with discovery & hot-reload
 │   ├── mcp/        # Built-in MCP servers
 │   ├── blitzkrieg/  # TDD enforcement system
-│   └── storage/     # Session & memory management
+│   └── storage/     # Session & learning management
 ├── hooks/           # 31+ hooks for extensibility
 ├── tools/           # LSP, session, GitHub, Git integrations
 ├── cli/             # Commands & doctor
 └── config/           # Zod schema validation
 ```
 
-Each feature module can be enabled/disabled independently.
+Each feature module can be enabled/disabled independently. For implementation details, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/EXAMPLES.md](docs/EXAMPLES.md), and [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 
 ---
 

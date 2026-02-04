@@ -67,12 +67,13 @@ export async function runStatus() {
     console.log(color.dim("  Activate with: 'blitz' or 'blz'"))
   }
 
-  // Memory Status
-  if (config.memory) {
-    const status = config.memory.enabled ? color.green("✓ Enabled") : color.red("✗ Disabled")
-    console.log(color.bold("\nMemory:"))
+  // Learning Status
+  const learningConfig = config.learning || config.memory
+  if (learningConfig) {
+    const status = learningConfig.enabled ? color.green("✓ Enabled") : color.red("✗ Disabled")
+    console.log(color.bold("\nLearning:"))
     console.log(`  Status: ${status}`)
-    console.log(`  Storage: ${config.memory.storagePath || "~/.kraken/memory"}`)
+    console.log(`  Storage: ${learningConfig.storagePath || "~/.kraken/learning"}`)
   }
 
   // Modes Status
