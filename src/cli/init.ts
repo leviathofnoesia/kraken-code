@@ -45,10 +45,32 @@ export async function runInit(options: { minimal?: boolean; full?: boolean }) {
         maxImplementationStepComplexity: 3
       }
     },
-    memory: {
+    learning: {
       enabled: true,
       autoSave: true,
-      storagePath: "~/.kraken/memory"
+      storagePath: "~/.kraken/learning",
+      experienceStore: {
+        enabled: true,
+        maxEntries: 2000
+      },
+      knowledgeGraph: {
+        enabled: true,
+        maxNodes: 5000
+      },
+      patternDetection: {
+        enabled: true,
+        minConfidence: 0.6,
+        maxPatterns: 500
+      },
+      spacedRepetition: {
+        enabled: true,
+        initialIntervalDays: 1,
+        easeFactor: 2.5,
+        maxIntervalDays: 365
+      },
+      stateMachines: {
+        enabled: true
+      }
     },
     modes: {
       blitzkrieg: {
