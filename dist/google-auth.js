@@ -28,7 +28,7 @@ var __export = (target, all) => {
 var __esm = (fn, res) => () => (fn && (res = fn(fn = 0)), res);
 var __require = /* @__PURE__ */ createRequire(import.meta.url);
 
-// ../node_modules/picocolors/picocolors.js
+// node_modules/picocolors/picocolors.js
 var require_picocolors = __commonJS((exports, module) => {
   var p = process || {};
   var argv = p.argv || [];
@@ -98,7 +98,7 @@ var require_picocolors = __commonJS((exports, module) => {
   module.exports.createColors = createColors;
 });
 
-// ../node_modules/sisteransi/src/index.js
+// node_modules/sisteransi/src/index.js
 var require_src = __commonJS((exports, module) => {
   var ESC = "\x1B";
   var CSI = `${ESC}[`;
@@ -313,10 +313,7 @@ async function generatePKCEChallenge() {
     codeChallengeMethod: "S256"
   };
 }
-async function buildAuthURL(projectId, clientId = ANTIGRAVITY_CLIENT_ID, port = ANTIGRAVITY_CALLBACK_PORT, usePKCE = true) {
-  if (!usePKCE) {
-    console.warn("[OAuth] PKCE is disabled. This weakens security and is not recommended. PKCE (RFC 7636) prevents authorization code interception attacks.");
-  }
+async function buildAuthURL(projectId, clientId = ANTIGRAVITY_CLIENT_ID, port = ANTIGRAVITY_CALLBACK_PORT, usePKCE = false) {
   const state = crypto.randomUUID().replace(/-/g, "");
   const redirectUri = `http://localhost:${port}/oauth-callback`;
   const url = new URL(GOOGLE_AUTH_URL);
@@ -474,7 +471,7 @@ function startCallbackServer(timeoutMs = 5 * 60 * 1000) {
     close: cleanup
   };
 }
-async function performOAuthFlow(projectId, openBrowser, clientId = ANTIGRAVITY_CLIENT_ID, clientSecret = ANTIGRAVITY_CLIENT_SECRET, usePKCE = true) {
+async function performOAuthFlow(projectId, openBrowser, clientId = ANTIGRAVITY_CLIENT_ID, clientSecret = ANTIGRAVITY_CLIENT_SECRET, usePKCE = false) {
   const serverHandle = startCallbackServer();
   try {
     const auth = await buildAuthURL(projectId, clientId, serverHandle.port, usePKCE);
@@ -2719,7 +2716,7 @@ function createAntigravityFetch(getAuth, client, providerId, clientId, clientSec
   };
   return fetchFn;
 }
-// ../node_modules/@clack/prompts/node_modules/@clack/core/dist/index.mjs
+// node_modules/@clack/prompts/node_modules/@clack/core/dist/index.mjs
 var import_picocolors = __toESM(require_picocolors(), 1);
 import { stdout as R, stdin as q } from "node:process";
 var import_sisteransi = __toESM(require_src(), 1);
@@ -3238,7 +3235,7 @@ class Wt extends x {
   }
 }
 
-// ../node_modules/@clack/prompts/dist/index.mjs
+// node_modules/@clack/prompts/dist/index.mjs
 var import_picocolors2 = __toESM(require_picocolors(), 1);
 import P2 from "node:process";
 var import_sisteransi2 = __toESM(require_src(), 1);
@@ -3612,27 +3609,27 @@ async function promptAccountTier() {
   return tier;
 }
 
-// ../node_modules/open/index.js
+// node_modules/open/index.js
 import process8 from "node:process";
 import path2 from "node:path";
 import { fileURLToPath } from "node:url";
 import childProcess3 from "node:child_process";
 import fs6, { constants as fsConstants2 } from "node:fs/promises";
 
-// ../node_modules/wsl-utils/index.js
+// node_modules/wsl-utils/index.js
 import { promisify as promisify2 } from "node:util";
 import childProcess2 from "node:child_process";
 import fs5, { constants as fsConstants } from "node:fs/promises";
 
-// ../node_modules/is-wsl/index.js
+// node_modules/is-wsl/index.js
 import process2 from "node:process";
 import os2 from "node:os";
 import fs4 from "node:fs";
 
-// ../node_modules/is-inside-container/index.js
+// node_modules/is-inside-container/index.js
 import fs3 from "node:fs";
 
-// ../node_modules/is-docker/index.js
+// node_modules/is-docker/index.js
 import fs2 from "node:fs";
 var isDockerCached;
 function hasDockerEnv() {
@@ -3657,7 +3654,7 @@ function isDocker() {
   return isDockerCached;
 }
 
-// ../node_modules/is-inside-container/index.js
+// node_modules/is-inside-container/index.js
 var cachedResult;
 var hasContainerEnv = () => {
   try {
@@ -3674,7 +3671,7 @@ function isInsideContainer() {
   return cachedResult;
 }
 
-// ../node_modules/is-wsl/index.js
+// node_modules/is-wsl/index.js
 var isWsl = () => {
   if (process2.platform !== "linux") {
     return false;
@@ -3693,7 +3690,7 @@ var isWsl = () => {
 };
 var is_wsl_default = process2.env.__IS_WSL_TEST__ ? isWsl : isWsl();
 
-// ../node_modules/powershell-utils/index.js
+// node_modules/powershell-utils/index.js
 import process3 from "node:process";
 import { Buffer } from "node:buffer";
 import { promisify } from "node:util";
@@ -3724,7 +3721,7 @@ executePowerShell.argumentsPrefix = [
 executePowerShell.encodeCommand = (command) => Buffer.from(command, "utf16le").toString("base64");
 executePowerShell.escapeArgument = (value) => `'${String(value).replaceAll("'", "''")}'`;
 
-// ../node_modules/wsl-utils/utilities.js
+// node_modules/wsl-utils/utilities.js
 function parseMountPointFromConfig(content) {
   for (const line of content.split(`
 `)) {
@@ -3739,7 +3736,7 @@ function parseMountPointFromConfig(content) {
   }
 }
 
-// ../node_modules/wsl-utils/index.js
+// node_modules/wsl-utils/index.js
 var execFile2 = promisify2(childProcess2.execFile);
 var wslDrivesMountPoint = (() => {
   const defaultMountPoint = "/mnt/";
@@ -3803,7 +3800,7 @@ var convertWslPathToWindows = async (path2) => {
   }
 };
 
-// ../node_modules/define-lazy-prop/index.js
+// node_modules/define-lazy-prop/index.js
 function defineLazyProperty(object, propertyName, valueGetter) {
   const define = (value) => Object.defineProperty(object, propertyName, { value, enumerable: true, writable: true });
   Object.defineProperty(object, propertyName, {
@@ -3821,12 +3818,12 @@ function defineLazyProperty(object, propertyName, valueGetter) {
   return object;
 }
 
-// ../node_modules/default-browser/index.js
+// node_modules/default-browser/index.js
 import { promisify as promisify6 } from "node:util";
 import process6 from "node:process";
 import { execFile as execFile6 } from "node:child_process";
 
-// ../node_modules/default-browser-id/index.js
+// node_modules/default-browser-id/index.js
 import { promisify as promisify3 } from "node:util";
 import process4 from "node:process";
 import { execFile as execFile3 } from "node:child_process";
@@ -3844,7 +3841,7 @@ async function defaultBrowserId() {
   return browserId;
 }
 
-// ../node_modules/run-applescript/index.js
+// node_modules/run-applescript/index.js
 import process5 from "node:process";
 import { promisify as promisify4 } from "node:util";
 import { execFile as execFile4, execFileSync } from "node:child_process";
@@ -3862,13 +3859,13 @@ async function runAppleScript(script, { humanReadableOutput = true, signal } = {
   return stdout.trim();
 }
 
-// ../node_modules/bundle-name/index.js
+// node_modules/bundle-name/index.js
 async function bundleName(bundleId) {
   return runAppleScript(`tell application "Finder" to set app_path to application file id "${bundleId}" as string
 tell application "System Events" to get value of property list item "CFBundleName" of property list file (app_path & ":Contents:Info.plist")`);
 }
 
-// ../node_modules/default-browser/windows.js
+// node_modules/default-browser/windows.js
 import { promisify as promisify5 } from "node:util";
 import { execFile as execFile5 } from "node:child_process";
 var execFileAsync3 = promisify5(execFile5);
@@ -3906,14 +3903,14 @@ async function defaultBrowser(_execFileAsync = execFileAsync3) {
     throw new UnknownBrowserError(`Cannot find Windows browser in stdout: ${JSON.stringify(stdout)}`);
   }
   const { id } = match.groups;
-  const browser = windowsBrowserProgIds[id];
-  if (!browser) {
-    throw new UnknownBrowserError(`Unknown browser ID: ${id}`);
-  }
-  return browser;
+  const dotIndex = id.lastIndexOf(".");
+  const hyphenIndex = id.lastIndexOf("-");
+  const baseIdByDot = dotIndex === -1 ? undefined : id.slice(0, dotIndex);
+  const baseIdByHyphen = hyphenIndex === -1 ? undefined : id.slice(0, hyphenIndex);
+  return windowsBrowserProgIds[id] ?? windowsBrowserProgIds[baseIdByDot] ?? windowsBrowserProgIds[baseIdByHyphen] ?? { name: id, id };
 }
 
-// ../node_modules/default-browser/index.js
+// node_modules/default-browser/index.js
 var execFileAsync4 = promisify6(execFile6);
 var titleize = (string) => string.toLowerCase().replaceAll(/(?:^|\s|-)\S/g, (x3) => x3.toUpperCase());
 async function defaultBrowser2() {
@@ -3934,12 +3931,12 @@ async function defaultBrowser2() {
   throw new Error("Only macOS, Linux, and Windows are supported");
 }
 
-// ../node_modules/is-in-ssh/index.js
+// node_modules/is-in-ssh/index.js
 import process7 from "node:process";
 var isInSsh = Boolean(process7.env.SSH_CONNECTION || process7.env.SSH_CLIENT || process7.env.SSH_TTY);
 var is_in_ssh_default = isInSsh;
 
-// ../node_modules/open/index.js
+// node_modules/open/index.js
 var fallbackAttemptSymbol = Symbol("fallbackAttempt");
 var __dirname2 = import.meta.url ? path2.dirname(fileURLToPath(import.meta.url)) : "";
 var localXdgOpenPath = path2.join(__dirname2, "xdg-open");
