@@ -25,10 +25,12 @@ function extractTextFromParts(parts: Part[]): string {
   return textChunks.join("\n").trim()
 }
 
-async function createAgentSession(
+async function runAgentCall(
   context: AgentCallContext,
-  agent: string
-): Promise<string> {
+  agent: string,
+  task: string,
+  extraContext?: string
+): Promise<{ sessionId: string; responseText: string }> {
   const sessionResult = await context.client.session.create({
     body: { title: `Subagent: ${agent}` },
     query: { directory: context.directory },
@@ -41,16 +43,7 @@ async function createAgentSession(
     throw new Error(errorMessage)
   }
 
-  return sessionResult.data.id
-}
-
-async function runAgentCall(
-  context: AgentCallContext,
-  sessionId: string,
-  agent: string,
-  task: string,
-  extraContext?: string
-): Promise<{ responseText: string }> {
+  const sessionId = sessionResult.data.id
   const prompt = buildAgentPrompt(task, extraContext)
   const promptResult = await context.client.session.prompt({
     path: { id: sessionId },
@@ -71,6 +64,7 @@ async function runAgentCall(
   const responseText = extractTextFromParts(promptResult.data.parts)
 
   return {
+    sessionId,
     responseText: responseText || JSON.stringify(promptResult.data, null, 2),
   }
 }
@@ -136,11 +130,9 @@ export function createCallAgentTool(manager: BackgroundManager, context: AgentCa
       try {
         const newTask = manager.createTask(agent, task, taskContext)
 
-        const sessionId = await createAgentSession(context, agent)
-        newTask.sessionId = sessionId
-
         const runTask = async () => {
-          const result = await runAgentCall(context, sessionId, agent, task, taskContext)
+          const result = await runAgentCall(context, agent, task, taskContext)
+          newTask.sessionId = result.sessionId
           manager.completeTask(newTask.id, result.responseText)
         }
 
@@ -182,7 +174,7 @@ export function createCallAgentTool(manager: BackgroundManager, context: AgentCa
             agent: newTask.agent,
             status: newTask.status,
             message: `Task delegated to ${agent}. Use background_task_status to check progress.`,
-            sessionId,
+            sessionId: newTask.sessionId,
           },
           null,
             2
