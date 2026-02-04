@@ -1,5 +1,21 @@
 #!/usr/bin/env bun
 // @bun
+var __create = Object.create;
+var __getProtoOf = Object.getPrototypeOf;
+var __defProp = Object.defineProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __toESM = (mod, isNodeMode, target) => {
+  target = mod != null ? __create(__getProtoOf(mod)) : {};
+  const to = isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target;
+  for (let key of __getOwnPropNames(mod))
+    if (!__hasOwnProp.call(to, key))
+      __defProp(to, key, {
+        get: () => mod[key],
+        enumerable: true
+      });
+  return to;
+};
 var __require = import.meta.require;
 
 // src/cli/index.ts
@@ -1266,7 +1282,7 @@ import { writeFileSync as writeFileSync2, existsSync as existsSync6, mkdirSync, 
 import * as path4 from "path";
 import * as os4 from "os";
 import color4 from "picocolors";
-var __dirname = "/home/ubuntu/kraken-code/src/cli";
+var __dirname = "/workspace/kraken-code/src/cli";
 async function runInit(options) {
   console.log(color4.cyan("\uD83D\uDC19 Initializing Kraken Code..."));
   const configDir = path4.join(os4.homedir(), ".config", "opencode");
@@ -1303,10 +1319,32 @@ async function runInit(options) {
         maxImplementationStepComplexity: 3
       }
     },
-    kratos: {
+    learning: {
       enabled: true,
       autoSave: true,
-      storagePath: "~/.kratos"
+      storagePath: "~/.kraken/learning",
+      experienceStore: {
+        enabled: true,
+        maxEntries: 2000
+      },
+      knowledgeGraph: {
+        enabled: true,
+        maxNodes: 5000
+      },
+      patternDetection: {
+        enabled: true,
+        minConfidence: 0.6,
+        maxPatterns: 500
+      },
+      spacedRepetition: {
+        enabled: true,
+        initialIntervalDays: 1,
+        easeFactor: 2.5,
+        maxIntervalDays: 365
+      },
+      stateMachines: {
+        enabled: true
+      }
     },
     modes: {
       blitzkrieg: {
@@ -1456,12 +1494,13 @@ Blitzkrieg Mode:`));
     console.log(`  Status: ${status}`);
     console.log(color5.dim("  Activate with: 'blitz' or 'blz'"));
   }
-  if (config2.kratos) {
-    const status = config2.kratos.enabled ? color5.green("\u2713 Enabled") : color5.red("\u2717 Disabled");
+  const learningConfig = config2.learning || config2.memory;
+  if (learningConfig) {
+    const status = learningConfig.enabled ? color5.green("\u2713 Enabled") : color5.red("\u2717 Disabled");
     console.log(color5.bold(`
-Memory (Kratos):`));
+Learning:`));
     console.log(`  Status: ${status}`);
-    console.log(`  Storage: ${config2.kratos.storagePath || config2.kratos.storagePath || "~/.kratos"}`);
+    console.log(`  Storage: ${learningConfig.storagePath || "~/.kraken/learning"}`);
   }
   if (config2.modes) {
     const modeNames = [];

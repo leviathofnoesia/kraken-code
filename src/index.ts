@@ -29,6 +29,19 @@ import { grep } from './tools/grep'
 import { ralphLoop } from './tools/ralph-loop'
 import { call_kraken_agent } from './tools/agent-call'
 import { recordToolUse } from './storage'
+import {
+  learning_add_experience,
+  learning_add_knowledge_node,
+  learning_create_state_machine,
+  learning_get_review_queue,
+  learning_link_knowledge_nodes,
+  learning_list_patterns,
+  learning_list_state_machines,
+  learning_record_pattern,
+  learning_review_node,
+  learning_search_experiences,
+  learning_search_knowledge_nodes,
+} from './tools/learning'
 
 // LSP tools
 import {
@@ -83,6 +96,7 @@ import {
   webfetchTool,
   websearchTool,
 } from './features/mcp'
+import { initializeLearning } from './features/memory'
 
 // CLI & Skills
 import { initializeCommandLoader } from './features/command-loader'
@@ -173,6 +187,17 @@ const builtinTools: Record<string, any> = {
   'context7-get': context7GetToolMCP,
   'grep-search': grepSearchToolMCP,
   'grep-get-file': grepGetFileToolMCP,
+  learning_add_experience,
+  learning_search_experiences,
+  learning_add_knowledge_node,
+  learning_search_knowledge_nodes,
+  learning_link_knowledge_nodes,
+  learning_record_pattern,
+  learning_list_patterns,
+  learning_get_review_queue,
+  learning_review_node,
+  learning_create_state_machine,
+  learning_list_state_machines,
 }
 
 const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks> => {
@@ -240,6 +265,14 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
             logger.info('MCP servers initialized')
           } catch (e) {
             logger.error('Error initializing MCP servers:', e)
+          }
+        })(),
+        (async () => {
+          try {
+            await initializeLearning()
+            logger.info('Learning system initialized')
+          } catch (e) {
+            logger.error('Error initializing learning system:', e)
           }
         })(),
       ])
