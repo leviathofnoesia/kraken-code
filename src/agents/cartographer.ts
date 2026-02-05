@@ -471,6 +471,11 @@ export function createCartographerConfig(model: string = DEFAULT_MODEL): AgentCo
     temperature: 0.2,
     prompt: CARTOGRAPHER_SYSTEM_PROMPT,
     thinking: { type: 'enabled', budgetTokens: 64000 },
+    tools: {
+      write: false,
+      edit: false,
+      task: false,
+    },
   } as AgentConfig
 }
 
