@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { writeFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs'
-// @ts-ignore - jsonc-parser exports parseJsonc
+// @ts-expect-error - jsonc-parser exports parseJsonc but LSP may not resolve correctly
 import { parseJsonc } from 'jsonc-parser'
 import * as path from 'path'
 import * as os from 'os'
@@ -131,10 +131,11 @@ export async function runInit(options: { minimal?: boolean; full?: boolean; verb
     console.log(color.dim(`ℹ️  No existing Kraken configuration found at ${krakenConfigPath}`))
   }
 
-  const mergedKrakenConfig = {
-    ...krakenConfig,
-    ...existingKrakenConfig,
-  }
+  // Deep merge configs: use structuredClone for deep copy then spread merge to preserve nested Blitzkrieg settings
+  const mergedKrakenConfig = structuredClone(
+    structuredClone(krakenConfig),
+    structuredClone(existingKrakenConfig),
+  )
 
   // Write kraken-code config
   try {
@@ -267,9 +268,13 @@ export async function runInit(options: { minimal?: boolean; full?: boolean; verb
 
     // Check if kraken-code appears in plugin list
     const { exec } = await import('node:child_process')
-    const result = await new Promise((resolve) => {
-      exec('opencode --plugins', (error, stdout, stderr) => {
-        resolve(stdout)
+    const result = await new Promise((resolve, reject) => {
+      exec('opencode --plugins', { timeout: 50000 }, (error, stdout, stderr) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(stdout || '')
+        }
       })
     })
 
