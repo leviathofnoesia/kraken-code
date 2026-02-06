@@ -18,7 +18,7 @@ export const MODEL_CATALOG: Record<string, ModelInfo> = {
     capabilities: ['code', 'thinking', 'vision', 'multimodal'],
     costPer1kTokens: 15.0,
     maxContext: 200000,
-    recommendedFor: ['Kraken', 'Maelstrom', 'Leviathan', 'Poseidon', 'Scylla'],
+    recommendedFor: ['Kraken', 'Cartographer', 'Maelstrom', 'Leviathan', 'Poseidon', 'Scylla'],
   },
   'anthropic/claude-sonnet-4-5': {
     id: 'anthropic/claude-sonnet-4-5',
@@ -78,7 +78,7 @@ export const MODEL_CATALOG: Record<string, ModelInfo> = {
     capabilities: ['code', 'vision', 'multimodal'],
     costPer1kTokens: 1.5,
     maxContext: 1048576,
-    recommendedFor: ['Kraken', 'Maelstrom', 'Leviathan'],
+    recommendedFor: ['Kraken', 'Cartographer', 'Maelstrom', 'Leviathan'],
   },
   'google/antigravity-claude-opus-4-5-thinking': {
     id: 'google/antigravity-claude-opus-4-5-thinking',
@@ -88,7 +88,7 @@ export const MODEL_CATALOG: Record<string, ModelInfo> = {
     capabilities: ['code', 'thinking', 'vision', 'multimodal'],
     costPer1kTokens: 10.0,
     maxContext: 200000,
-    recommendedFor: ['Kraken', 'Maelstrom', 'Leviathan', 'Poseidon', 'Scylla'],
+    recommendedFor: ['Kraken', 'Cartographer', 'Maelstrom', 'Leviathan', 'Poseidon', 'Scylla'],
   },
   'google/antigravity-claude-sonnet-4-5-thinking': {
     id: 'google/antigravity-claude-sonnet-4-5-thinking',
@@ -124,6 +124,7 @@ export function generateOptimalPresets(
     Kraken: {
       model: hasAnthropic ? 'anthropic/claude-sonnet-4-5' : 'google/antigravity-gemini-3-pro',
     },
+    Cartographer: { model: 'anthropic/claude-sonnet-4-5' },
     Maelstrom: { model: 'anthropic/claude-sonnet-4-5' },
     Nautilus: {
       model: hasGoogle ? 'google/antigravity-gemini-3-flash' : 'anthropic/claude-haiku-4-5',
@@ -141,6 +142,7 @@ export function generateOptimalPresets(
 
   presets.quality = {
     Kraken: { model: 'anthropic/claude-opus-4-5' },
+    Cartographer: { model: 'anthropic/claude-opus-4-5' },
     Maelstrom: { model: 'anthropic/claude-opus-4-5' },
     Nautilus: { model: 'anthropic/claude-sonnet-4-5' },
     Abyssal: { model: 'openai/gpt-4o' },
@@ -154,6 +156,7 @@ export function generateOptimalPresets(
 
   presets.economy = {
     Kraken: { model: 'anthropic/claude-haiku-4-5' },
+    Cartographer: { model: 'anthropic/claude-sonnet-4-5' },
     Maelstrom: { model: 'anthropic/claude-haiku-4-5' },
     Nautilus: { model: 'anthropic/claude-haiku-4-5' },
     Abyssal: { model: 'openai/gpt-4o-mini' },
@@ -167,6 +170,7 @@ export function generateOptimalPresets(
 
   presets.balanced = {
     Kraken: { model: 'anthropic/claude-opus-4-5' },
+    Cartographer: { model: 'anthropic/claude-opus-4-5' },
     Maelstrom: { model: 'anthropic/claude-opus-4-5' },
     Nautilus: { model: 'google/antigravity-gemini-3-flash' },
     Abyssal: { model: 'openai/gpt-4o' },

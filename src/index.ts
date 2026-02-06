@@ -244,8 +244,18 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
       }
       if (!pluginConfig.default_agent && pluginConfig.agent['Kraken'])
         pluginConfig.default_agent = 'Kraken'
+
+      // Ensure default_agents always includes all primary agents
+      const primaryAgents = ['Kraken', 'Cartographer']
       if (!pluginConfig.default_agents) {
-        pluginConfig.default_agents = ['Kraken', 'Cartographer']
+        pluginConfig.default_agents = primaryAgents
+      } else if (Array.isArray(pluginConfig.default_agents)) {
+        // Merge in any missing primary agents
+        for (const agent of primaryAgents) {
+          if (!pluginConfig.default_agents.includes(agent)) {
+            pluginConfig.default_agents.push(agent)
+          }
+        }
       }
 
       // Parallelize initialization for faster startup
