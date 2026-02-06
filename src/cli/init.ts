@@ -132,6 +132,8 @@ export async function runInit(options: { minimal?: boolean; full?: boolean; verb
   const mergedKrakenConfig = {
     ...krakenConfig,
     ...existingKrakenConfig,
+    // Always ensure default_agents includes all primary agents (prevents stale config from hiding new agents)
+    default_agents: krakenConfig.default_agents,
   }
 
   // Write kraken-code config
