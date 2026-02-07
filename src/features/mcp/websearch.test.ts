@@ -36,35 +36,28 @@ describe('websearch MCP', () => {
     })
 
     it('warns when no API key provided', async () => {
-        // #given no API key and debug mode enabled
-        const originalDebug = process.env.DEBUG
-        // Track if logger.warn was called
-        let loggerWarnCalled = false
+      // #given no API key and debug mode enabled
+      const originalDebug = process.env.DEBUG
+      const consoleWarnSpy = spyOn(console, 'warn')
 
-        try {
-          process.env.DEBUG = '1'
+      try {
+        process.env.DEBUG = '1'
 
-          // #when initializing without API key
-          await initializeWebsearchMCP({})
+        // #when initializing without API key
+        await initializeWebsearchMCP({})
 
-          // #then should warn
-          expect(consoleWarnSpy).toHaveBeenCalled()
-          loggerWarnCalled = true // Mark that we expect it to be called
-        } finally {
-          // Restore debug setting
-          if (originalDebug !== undefined) {
-            process.env.DEBUG = originalDebug
-          } else {
-            delete process.env.DEBUG
-          }
-
-          // Verify warning was called
-          expect(consoleWarnSpy).toHaveBeenCalled()
+        // #then should warn
+        expect(consoleWarnSpy).toHaveBeenCalled()
+      } finally {
+        // Restore debug setting
+        if (originalDebug !== undefined) {
+          process.env.DEBUG = originalDebug
+        } else {
+          delete process.env.DEBUG
         }
 
-          // Verify warning was called
-          expect(consoleWarnSpy).toHaveBeenCalled()
-        }
+        // Verify warning was called
+        expect(consoleWarnSpy).toHaveBeenCalled()
       }
     })
   })
