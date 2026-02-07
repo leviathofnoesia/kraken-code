@@ -37,9 +37,11 @@ export function createDirectoryReadmeInjector(
                 }
               }
             }
-          } catch {
+          } catch (error) {
+            // Always surface warnings for read failures
+            console.warn('[directory-readme-injector] Could not read README:', error)
             if (SHOULD_LOG) {
-              console.log('[directory-readme-injector] Could not read README')
+              console.log('[directory-readme-injector] Detailed error:', error)
             }
           }
           break

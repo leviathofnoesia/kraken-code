@@ -10,8 +10,10 @@ import { SHOULD_LOG } from '../../utils/logger'
 
 /**
  * Supported providers that support thinking mode
+ * Currently only Anthropic (and Bedrock when using Anthropic models) have
+ * extended thinking support. Google and OpenAI may add support in the future.
  */
-const THINKING_SUPPORTED_PROVIDERS = ['anthropic', 'bedrock', 'google', 'openai']
+const THINKING_SUPPORTED_PROVIDERS = ['anthropic', 'bedrock']
 
 /**
  * Think keywords to detect (case-insensitive)
@@ -226,7 +228,8 @@ export function createThinkModeHook(input: PluginInput): Hooks {
             if (SHOULD_LOG)
               console.log(`[think-mode] Applying think mode settings for provider ${providerID}`)
 
-            if (providerID.includes('anthropic')) {
+            // Anthropic and Bedrock (with Anthropic models) support extended thinking
+            if (providerID.includes('anthropic') || providerID.includes('bedrock')) {
               paramsOutput.options.thinking = {
                 budget_tokens: 32000,
                 type: 'enabled',

@@ -147,8 +147,8 @@ function loadRuleFiles(directory: string): RuleFile[] {
               rules,
             })
           } catch (error) {
-            if (SHOULD_LOG)
-              console.error(`[rules-injector] Error loading rule file ${fullPath}:`, error)
+            // Always report file-load failures (critical errors)
+            console.warn(`[rules-injector] Error loading rule file ${fullPath}:`, error)
           }
         }
       }

@@ -310,11 +310,11 @@ export function createThinkingBlockValidator(
         }
 
         if (config.strictMode && !validation.recovered) {
-          if (SHOULD_LOG)
-            console.error(
-              '[thinking-block-validator] CRITICAL: Validation failed in strict mode. ' +
-                'Please fix the thinking block structure before continuing.',
-            )
+          // Always report critical strict mode failures
+          console.error(
+            '[thinking-block-validator] CRITICAL: Validation failed in strict mode. ' +
+              'Please fix the thinking block structure before continuing.',
+          )
         }
       }
     },
