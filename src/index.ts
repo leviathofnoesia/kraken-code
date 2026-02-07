@@ -29,7 +29,6 @@ import { ast_grep_search, ast_grep_replace } from './tools/ast-grep'
 import { session_list, session_read, session_search, session_info } from './tools/session'
 import { grep } from './tools/grep'
 import { ralphLoop } from './tools/ralph-loop'
-import { call_kraken_agent } from './tools/agent-call'
 import { recordToolUse } from './storage'
 import {
   learning_add_experience,
@@ -90,15 +89,7 @@ import { createBlitzkriegEvidenceVerifierHook } from './hooks/blitzkrieg-evidenc
 import { createBlitzkriegPlannerConstraintsHook } from './hooks/blitzkrieg-planner-constraints'
 
 // MCP & Features
-import { initializeAllMcpServers, shutdownAllMcpServers } from './features/mcp/index'
-import {
-  context7GetToolMCP,
-  context7SearchToolMCP,
-  grepGetFileToolMCP,
-  grepSearchToolMCP,
-  webfetchTool,
-  websearchTool,
-} from './features/mcp'
+import { createBuiltinMcpConfigs, getMcpAgentTools } from './features/mcp/index'
 import { initializeLearning } from './features/memory'
 
 // CLI & Skills
@@ -174,24 +165,6 @@ const builtinTools: Record<string, any> = {
   'kraken-compress': opencodeXCompress,
   'model-switcher': modelSwitcher,
   'ralph-loop': ralphLoop,
-  lsp_hover,
-  lsp_goto_definition,
-  lsp_find_references,
-  lsp_document_symbols,
-  lsp_workspace_symbols,
-  lsp_diagnostics,
-  lsp_prepare_rename,
-  lsp_rename,
-  lsp_code_actions,
-  lsp_code_action_resolve,
-  lsp_servers,
-  'call-kraken-agent': call_kraken_agent,
-  websearch: websearchTool,
-  webfetch: webfetchTool,
-  'context7-search': context7SearchToolMCP,
-  'context7-get': context7GetToolMCP,
-  'grep-search': grepSearchToolMCP,
-  'grep-get-file': grepGetFileToolMCP,
   learning_add_experience,
   learning_search_experiences,
   learning_add_knowledge_node,
@@ -203,6 +176,7 @@ const builtinTools: Record<string, any> = {
   learning_review_node,
   learning_create_state_machine,
   learning_list_state_machines,
+  ...getMcpAgentTools(),
 }
 
 const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks> => {
@@ -240,10 +214,20 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
       if (!pluginConfig.agent) pluginConfig.agent = {}
       const agents = getSeaThemedAgents()
       for (const [name, agentConfig] of Object.entries(agents)) {
-        if (!pluginConfig.agent[name]) pluginConfig.agent[name] = agentConfig
+        // Merge: plugin defaults as base, user overrides on top
+        // This ensures mode, prompt, and other defaults always propagate
+        // even when the user has partial overrides in their config
+        pluginConfig.agent[name] = { ...agentConfig, ...pluginConfig.agent[name] }
       }
-      if (!pluginConfig.default_agent && pluginConfig.agent['Kraken'])
-        pluginConfig.default_agent = 'Kraken'
+
+      // Ensure primary agents always retain their mode even after user overrides
+      // Without this, a user override missing 'mode' would demote a primary agent
+      const primaryAgents = ['Kraken', 'Cartographer']
+      for (const name of primaryAgents) {
+        if (pluginConfig.agent[name]) {
+          pluginConfig.agent[name].mode = 'primary'
+        }
+      }
 
       // Parallelize initialization for faster startup
       await Promise.all([
@@ -270,8 +254,13 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
         (async () => {
           try {
             const mcpConfig = pluginConfig.mcp || {}
-            await initializeAllMcpServers(mcpConfig)
-            logger.debug('MCP servers initialized')
+            const builtinMcpConfigs = createBuiltinMcpConfigs(
+              (mcpConfig as any)?.disabled_mcps || [],
+              { websearch: (mcpConfig as any)?.websearch },
+            )
+            // Merge built-in MCP configs into plugin config
+            Object.assign(pluginConfig.mcp as Record<string, unknown>, builtinMcpConfigs)
+            logger.debug('MCP server configs added')
           } catch (e) {
             if (process.env.ANTIGRAVITY_DEBUG === '1' || process.env.DEBUG === '1') {
               logger.error('Error initializing MCP servers:', e)
@@ -351,11 +340,7 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
 
   // 7. MCP Shutdown on plugin exit
   process.on('exit', async () => {
-    try {
-      await shutdownAllMcpServers()
-    } catch (e) {
-      console.error('Kraken Code: Error shutting down services', e)
-    }
+    // No shutdown needed for remote MCP configurations
   })
 
   return mergeHooks(...hooks)
