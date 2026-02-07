@@ -61,7 +61,7 @@ let _activeWebsearchConfig: RemoteMcpConfig | null = null
 /**
  * Set the active websearch configuration (called during plugin initialization)
  */
-export function setActiveWebsearchConfig(config: RemoteMcpConfig): void {
+export function setActiveWebsearchConfig(config: RemoteMcpConfig | null): void {
   _activeWebsearchConfig = config
 }
 
@@ -91,6 +91,16 @@ export const websearchTool = tool({
   async execute(args) {
     try {
       const config = _activeWebsearchConfig || createWebsearchConfig()
+
+      // Check if websearch is disabled
+      if (config.enabled === false) {
+        return JSON.stringify(
+          { error: 'Websearch disabled', details: 'API key not configured' },
+          null,
+          2,
+        )
+      }
+
       const result = await mcpLoader.callTool('search', args, config)
       return JSON.stringify(result, null, 2)
     } catch (err) {
@@ -120,6 +130,16 @@ export const webfetchTool = tool({
   async execute(args) {
     try {
       const config = _activeWebsearchConfig || createWebsearchConfig()
+
+      // Check if websearch is disabled
+      if (config.enabled === false) {
+        return JSON.stringify(
+          { error: 'Websearch disabled', details: 'API key not configured' },
+          null,
+          2,
+        )
+      }
+
       const result = await mcpLoader.callTool('fetch', args, config)
       return JSON.stringify(result, null, 2)
     } catch (err) {

@@ -127,6 +127,9 @@ export function createBuiltinMcpConfigs(
     mcps.websearch = websearchConfig
     // Set active config for tools to use
     setActiveWebsearchConfig(websearchConfig)
+  } else {
+    // Clear active config when websearch is disabled
+    setActiveWebsearchConfig(null)
   }
 
   if (!disabledMcps.includes('context7')) {
