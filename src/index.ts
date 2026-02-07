@@ -258,8 +258,9 @@ const createOpenCodeXPlugin: Plugin = async (input: PluginInput): Promise<Hooks>
               (mcpConfig as any)?.disabled_mcps || [],
               { websearch: (mcpConfig as any)?.websearch },
             )
-            // Merge built-in MCP configs into plugin config
-            Object.assign(pluginConfig.mcp as Record<string, unknown>, builtinMcpConfigs)
+            // Merge: built-in configs as defaults, user config takes precedence
+            const mergedMcpConfigs = { ...builtinMcpConfigs, ...pluginConfig.mcp }
+            pluginConfig.mcp = mergedMcpConfigs as any
             logger.debug('MCP server configs added')
           } catch (e) {
             if (process.env.ANTIGRAVITY_DEBUG === '1' || process.env.DEBUG === '1') {

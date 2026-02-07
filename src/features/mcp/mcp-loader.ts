@@ -70,14 +70,40 @@ export class MCPLoader {
     args: Record<string, unknown>,
     mcpConfig: RemoteMcpConfig,
   ): Promise<unknown> {
+    // Use mcpConfig.name for tool routing, or derive from URL if not provided
+    const mcpName = mcpConfig.name || this.deriveNameFromUrl(mcpConfig.url)
+
     // Lazy initialization
-    await this.initMCP(mcpConfig.url, mcpConfig)
+    await this.initMCP(mcpName, mcpConfig)
 
     // For now, return a simulated response
     // Future: Use stdio connection to actual MCP server
     return {
       result: `Tool '${toolName}' called with args: ${JSON.stringify(args)}`,
       server: mcpConfig.url,
+    }
+  }
+
+  /**
+   * Derive MCP name from URL
+   */
+  private deriveNameFromUrl(url: string): string {
+    try {
+      const parsed = new URL(url)
+      const hostname = parsed.hostname
+
+      // Map known URLs to friendly names
+      if (hostname.includes('context7.com')) return 'context7'
+      if (hostname.includes('exa.ai')) return 'websearch'
+      if (hostname.includes('tavily.com')) return 'websearch'
+      if (hostname.includes('grep.app')) return 'grep_app'
+      if (hostname.includes('deepwiki.com')) return 'deepwiki'
+      if (hostname.includes('semgrep.ai')) return 'semgrep'
+
+      // Fallback: use hostname as name
+      return hostname.replace('.com', '').replace('mcp.', '')
+    } catch {
+      return 'unknown'
     }
   }
 

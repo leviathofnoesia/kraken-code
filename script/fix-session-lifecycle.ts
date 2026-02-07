@@ -8,16 +8,15 @@ const filePath = join(process.cwd(), 'src/hooks/session-lifecycle/index.ts')
 let content = readFileSync(filePath, 'utf-8')
 
 // Add logger import after existing imports
-const loggerImport = `import { createLogger } from '../../utils/logger'
+const loggerImport = `import { createLogger } from '../../utils/logger'\n\n`
 
-const loggerCreation = `
-const logger = createLogger('session-lifecycle')
-`
+const loggerCreation = `const logger = createLogger('session-lifecycle')\n\n`
 
 // Insert after the imports section (after line 2)
 const importEndMarker = `import type { Hooks, PluginInput } from '@opencode-ai/plugin'\n`
 const insertionIndex = content.indexOf(importEndMarker) + importEndMarker.length
-content = content.slice(0, insertionIndex) + loggerImport + loggerCreation + content.slice(insertionIndex)
+content =
+  content.slice(0, insertionIndex) + loggerImport + loggerCreation + content.slice(insertionIndex)
 
 // Replace all console.log with logger.debug
 content = content.replace(/console\.log\(/g, 'logger.debug(')

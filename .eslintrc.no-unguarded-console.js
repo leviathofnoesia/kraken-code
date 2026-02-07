@@ -17,89 +17,98 @@ module.exports = {
       recommended: 'error',
     },
     fixable: 'code',
-    schema: [], // Use visitor pattern, not config pattern
+    schema: [],
+    messages: {
+      'use-logger': 'Replace console.{{method}}() with logger.{{method}}()',
+      'unguarded-console': 'Unguarded console statement in hook file - use logger',
+    },
   },
 
   create(context) {
-    const sourceCode = context.sourceCode || ''
+    const sourceCode = context.getSourceCode()
 
     // Check if logger is imported in this file
-    const hasLoggerImport = /import\s+.*logger['"]/.test(sourceCode) ||
-                                /from\s+['"][^'"]*logger['"]/.test(sourceCode) ||
-                                /require\s*\(\s*logger\s*\)/.test(sourceCode)
+    const sourceText = sourceCode.getText()
+    const hasLoggerImport =
+      /import\s+.*logger['"]/.test(sourceText) ||
+      /from\s+['"][^'"]*logger['"]/.test(sourceText) ||
+      /require\s*\(\s*logger\s*\)/.test(sourceText)
 
     return {
-      // Target all TypeScript files except tests
-      files: ['**/*.ts'],
-      exclude: [
-        '**/*.test.ts',
-        '**/test/**',
-        '**/node_modules/**',
-        // Exclude non-hook directories that may legitimately use console
-        'src/tools/**',
-        'src/features/**',
-        'src/config/**',
-        'src/cli/**',
-      ],
+      MemberExpression(node) {
+        // Check if this is console.method
+        if (node.object.type === 'Identifier' && node.object.name === 'console') {
+          const method = node.property.name
 
-      rules: [
-        {
-          meta: {
-            type: 'suggestion',
-            docs: 'No unguarded console statements in hook files',
-            fixable: 'code',
-          },
+          // console.error is ALWAYS allowed (critical errors must show)
+          if (method === 'error') {
+            return
+          }
 
-          create(context) {
-            return {
-              Identifier(node) {
-                // Check if this is a console method call
-                if (
-                  node.type === 'CallExpression' &&
-                  node.callee.type === 'Identifier' &&
-                  node.callee.name === 'console'
-                ) {
-                  const method = node.callee.property?.name
+          // Only check log/warn/info in hook directories
+          const filename = context.filename || ''
+          const isHookFile = filename.includes('src/hooks/')
 
-                  // console.error is ALWAYS allowed (critical errors must show)
-                  if (method === 'error') {
-                    return
-                  }
+          if (isHookFile && ['log', 'warn', 'info'].includes(method)) {
+            // Find the parent call expression
+            const callExpression = node.parent
+            if (callExpression && callExpression.type === 'CallExpression') {
+              // If logger is available, suggest using it
+              if (hasLoggerImport) {
+                context.report({
+                  node: callExpression,
+                  messageId: 'use-logger',
+                  data: { method },
+                  fix: (fixer) => {
+                    return fixer.replaceText(node.object, 'logger')
+                  },
+                })
+              } else {
+                // Logger not available, suggest importing it
+                const hookName = filename.split('/').slice(-2, -1).join('-')
+                const loggerImport = `import { createLogger } from '../../utils/logger'\n\n`
+                const loggerCreation = `const logger = createLogger('${hookName}')\n\n`
 
-                  // Only check log/warn/info in hook directories
-                  const filename = context.filename || ''
-                  const isHookFile = filename.includes('src/hooks/')
+                context.report({
+                  node: callExpression,
+                  messageId: 'unguarded-console',
+                  data: { method },
+                  fix: (fixer) => {
+                    // Find the last import statement
+                    const lastImport = sourceCode
+                      .getAST()
+                      .body.findLast(
+                        (node) =>
+                          node.type === 'ImportDeclaration' ||
+                          node.type === 'VariableDeclaration' ||
+                          (node.type === 'ExpressionStatement' &&
+                            node.expression.type === 'CallExpression' &&
+                            node.expression.callee.type === 'Identifier' &&
+                            node.expression.callee.name === 'require'),
+                      )
 
-                  if (isHookFile && ['log', 'warn', 'info'].includes(method || '')) {
-                    // If logger is available, suggest using it
-                    if (hasLoggerImport) {
-                      context.report({
-                        node,
-                        messageId: 'use-logger',
-                        data: { method },
-                        fix: `Replace with logger.${method || 'debug'}()`,
-                      })
-                    } else {
-                      // Logger not available, suggest importing it
-                      context.report({
-                        node,
-                        messageId: 'unguarded-console',
-                        data: { method },
-                        fix: [
-                          // Add logger import at top of file
-                          `import { createLogger } from '../../utils/logger'\n\n`,
-                          // Create logger instance (after imports, before hooks)
-                          `const logger = createLogger('${filename.split('/').slice(-2, -1).join('-')}')\n\n`,
-                          // Replace console with logger call
-                          `logger.${method || 'debug'}(`,
-                        ].join(''),
-                      })
+                    if (lastImport) {
+                      // Add import and logger creation after last import
+                      const insertPoint = sourceCode.getTokenAfter(lastImport)
+                      if (insertPoint) {
+                        return [
+                          fixer.insertTextAfter(insertPoint, `\n${loggerImport}`),
+                          fixer.insertTextAfter(insertPoint, loggerCreation),
+                          fixer.replaceText(node.object, 'logger'),
+                        ]
+                      }
                     }
-                  }
-                }
-              },
+
+                    return [
+                      fixer.insertTextBefore(sourceCode.ast, `${loggerImport}${loggerCreation}`),
+                      fixer.replaceText(node.object, 'logger'),
+                    ]
+                  },
+                })
+              }
             }
-          },
+          }
+        }
       },
     }
   },

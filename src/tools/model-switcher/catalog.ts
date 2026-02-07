@@ -125,10 +125,10 @@ export function generateOptimalPresets(
       model: hasAnthropic ? 'anthropic/claude-sonnet-4-5' : 'google/antigravity-gemini-3-pro',
     },
     // Removed hardcoded Cartographer and economy presets
-    // These agents now use provider-aware selection via the same logic as other agents
+    // These agents now use provider-aware selection via same logic as other agents
     // See model-switcher for runtime model selection
-    'Poseidon (Plan Consultant)': { model: 'anthropic/claude-opus-4-5' },
-    'Scylla (Plan Reviewer)': { model: 'anthropic/claude-sonnet-4-5' },
+    Poseidon: { model: 'anthropic/claude-opus-4-5' },
+    Scylla: { model: 'anthropic/claude-sonnet-4-5' },
     Pearl: {
       model: hasGoogle ? 'google/antigravity-gemini-3-flash' : 'anthropic/claude-haiku-4-5',
     },
@@ -143,8 +143,8 @@ export function generateOptimalPresets(
     Coral: { model: 'anthropic/claude-sonnet-4-5' },
     Siren: { model: 'anthropic/claude-sonnet-4-5' },
     Leviathan: { model: 'anthropic/claude-opus-4-5' },
-    'Poseidon (Plan Consultant)': { model: 'anthropic/claude-opus-4-5' },
-    'Scylla (Plan Reviewer)': { model: 'anthropic/claude-sonnet-4-5' },
+    Poseidon: { model: 'anthropic/claude-opus-4-5' },
+    Scylla: { model: 'anthropic/claude-sonnet-4-5' },
     Pearl: { model: 'anthropic/claude-sonnet-4-5' },
   }
 
@@ -157,8 +157,8 @@ export function generateOptimalPresets(
     Coral: { model: 'anthropic/claude-haiku-4-5' },
     Siren: { model: 'anthropic/claude-haiku-4-5' },
     Leviathan: { model: 'anthropic/claude-haiku-4-5' },
-    'Poseidon (Plan Consultant)': { model: 'anthropic/claude-sonnet-4-5' },
-    'Scylla (Plan Reviewer)': { model: 'anthropic/claude-sonnet-4-5' },
+    Poseidon: { model: 'anthropic/claude-sonnet-4-5' },
+    Scylla: { model: 'anthropic/claude-sonnet-4-5' },
     Pearl: { model: 'anthropic/claude-haiku-4-5' },
   }
 
@@ -171,8 +171,8 @@ export function generateOptimalPresets(
     Coral: { model: 'anthropic/claude-sonnet-4-5' },
     Siren: { model: 'anthropic/claude-sonnet-4-5' },
     Leviathan: { model: 'anthropic/claude-opus-4-5' },
-    'Poseidon (Plan Consultant)': { model: 'anthropic/claude-opus-4-5' },
-    'Scylla (Plan Reviewer)': { model: 'anthropic/claude-sonnet-4-5' },
+    Poseidon: { model: 'anthropic/claude-opus-4-5' },
+    Scylla: { model: 'anthropic/claude-sonnet-4-5' },
     Pearl: { model: 'google/antigravity-gemini-3-flash' },
   }
 

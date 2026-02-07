@@ -45,9 +45,6 @@ export function createWebsearchConfig(config?: { provider?: 'exa' | 'tavily' }):
   }
 }
 
-// Default websearch remote configuration (for plugin registration)
-export const websearch = createWebsearchConfig()
-
 /**
  * Websearch Agent Tool
  *
@@ -65,7 +62,8 @@ export const websearchTool = tool({
       .describe('Number of results to return (default: 10)'),
   },
   async execute(args) {
-    const result = await mcpLoader.callTool('search', args, websearch)
+    const config = createWebsearchConfig()
+    const result = await mcpLoader.callTool('search', args, config)
     return JSON.stringify(result, null, 2)
   },
 })
@@ -88,7 +86,8 @@ export const webfetchTool = tool({
     timeout: z.number().optional().describe('Request timeout in milliseconds (default: 60000)'),
   },
   async execute(args) {
-    const result = await mcpLoader.callTool('fetch', args, websearch)
+    const config = createWebsearchConfig()
+    const result = await mcpLoader.callTool('fetch', args, config)
     return JSON.stringify(result, null, 2)
   },
 })

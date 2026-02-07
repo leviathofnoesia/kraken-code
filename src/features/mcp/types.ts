@@ -17,12 +17,17 @@ export interface RemoteMcpConfig {
   type: 'remote'
 
   /**
-   * URL of the remote MCP server
+   * Logical name for this MCP (used for tool routing)
+   */
+  name?: string
+
+  /**
+   * URL of remote MCP server
    */
   url: string
 
   /**
-   * Whether the server is enabled
+   * Whether server is enabled
    */
   enabled?: boolean
 

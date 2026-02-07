@@ -40,12 +40,25 @@ try {
   // Build new content with header only once
   let newContent
   if (hasHeader) {
-    // Keep existing header, append safe lines
-    newContent = lines.slice(0, 2).concat(safeLines).join('\n')
+    // Keep existing header, compute safeLines from content after header
+    const safeLinesAfterHeader = lines.slice(2).filter((line) => {
+      // Skip lines with real secrets
+      if (!line || line.trim() === '') return true
+      const lower = line.toLowerCase()
+
+      // Skip if contains real secrets
+      const hasRealSecret =
+        line.includes('GOCSPX') ||
+        line.includes('1.apps.googleusercontent.com') ||
+        (line.includes('==') && line.includes('.apps.googleusercontent.com'))
+
+      return !hasRealSecret
+    })
+    newContent = lines.slice(0, 2).concat(safeLinesAfterHeader).join('\n')
   } else {
-    // Add header first, then safe lines
+    // Add header first, then safe lines (plain text, no Python shebang)
     newContent =
-      '#!/usr/bin/env python3\n\nREDACT SECRETS CONFIGURATION\n\n# This file processes replacements from replacements.txt\n# \n# SECURITY: replacements.txt should NOT be committed to git\n# It is added to .gitignore to prevent accidental secret commits\n\n'.concat(
+      '# REDACT SECRETS CONFIGURATION\n\n# This file processes replacements from replacements.txt\n# \n# SECURITY: replacements.txt should NOT be committed to git\n# It is added to .gitignore to prevent accidental secret commits\n\n'.concat(
         safeLines.join('\n'),
       )
   }
@@ -57,20 +70,36 @@ try {
   console.log(`✅ Kept ${safeLines.length} safe replacement lines`)
 
   // Update redact-secrets.py to use safe source
-  let redactContent = readFileSync(redactSecretsPath, 'utf-8')
-
-  // Add comment about not committing replacements.txt
-  redactContent = `#!/usr/bin/env python3
+  const redactContent = `#!/usr/bin/env python3
 """
 REDACT SECRETS CONFIGURATION
 """
 
 # This file processes replacements from replacements.txt
-# 
+#
 # SECURITY: replacements.txt should NOT be committed to git
 # It is added to .gitignore to prevent accidental secret commits
 
-${redactContent.split('\n').slice(7).join('\n')}`
+import sys
+import os
+
+def redact_secrets(content):
+    """Redact sensitive information from content."""
+    # This is a placeholder - implement actual redaction logic
+    return content
+
+if __name__ == '__main__':
+    # Read replacements.txt and process
+    replacements_path = os.path.join(os.path.dirname(__file__), 'replacements.txt')
+    if os.path.exists(replacements_path):
+        with open(replacements_path, 'r') as f:
+            content = f.read()
+            redacted = redact_secrets(content)
+            print(redacted)
+    else:
+        print(f"File not found: {replacements_path}", file=sys.stderr)
+        sys.exit(1)
+`
 
   writeFileSync(redactSecretsPath, redactContent, 'utf-8')
 

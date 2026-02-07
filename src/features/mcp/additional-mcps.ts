@@ -38,14 +38,13 @@ export const semgrep: RemoteMcpConfig = {
  * Sequential Thinking MCP Configuration
  *
  * Chain-of-thought reasoning tool.
+ * DISABLED: Unverified endpoint - requires verification of remote-mcp-servers.org domain
  */
 export const sequential_thinking: RemoteMcpConfig = {
   type: 'remote',
-  url: 'https://remote-mcp-servers.org/sequential-thinking/mcp',
-  enabled: true,
-  headers: process.env.SEQUENTIAL_THINKING_API_KEY
-    ? { 'x-api-key': process.env.SEQUENTIAL_THINKING_API_KEY }
-    : undefined,
+  url: '',
+  enabled: false,
+  headers: undefined,
   oauth: false,
 }
 
@@ -53,14 +52,13 @@ export const sequential_thinking: RemoteMcpConfig = {
  * Bridgemind MCP Configuration
  *
  * Mind mapping and brainstorming tool.
+ * DISABLED: Unverified endpoint - requires verification of remote-mcp-servers.org domain
  */
 export const bridgemind: RemoteMcpConfig = {
   type: 'remote',
-  url: 'https://remote-mcp-servers.org/bridgemind/mcp',
-  enabled: true,
-  headers: process.env.BRIDGEMIND_API_KEY
-    ? { 'x-api-key': process.env.BRIDGEMIND_API_KEY }
-    : undefined,
+  url: '',
+  enabled: false,
+  headers: undefined,
   oauth: false,
 }
 
@@ -70,14 +68,7 @@ export const bridgemind: RemoteMcpConfig = {
 export const additionalMcpConfigs: Record<string, RemoteMcpConfig> = {
   deepwiki,
   semgrep,
-  sequential_thinking,
-  bridgemind,
 }
 
-export const additionalMcpNames = [
-  'deepwiki',
-  'semgrep',
-  'sequential_thinking',
-  'bridgemind',
-] as const
+export const additionalMcpNames = ['deepwiki', 'semgrep'] as const
 export type AdditionalMcpName = (typeof additionalMcpNames)[number]
