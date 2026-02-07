@@ -1,6 +1,6 @@
 {
   "name": "kraken-code",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Kraken Code - Transforms OpenCode into an autonomous, high-density development environment",
   "type": "module",
   "main": "dist/index.js",
@@ -33,10 +33,11 @@
     "build:schema": "bun run script/build-schema.ts && mkdir -p dist && cp assets/kraken-code.schema.json dist/kraken-code.schema.json",
     "build:binary": "bun build --compile src/cli/index.ts --outfile bin/kraken-code",
     "clean": "rm -rf dist bin",
-    "prepublishOnly": "bun run clean && bun run build && bun run typecheck",
+    "prepublishOnly": "bun run clean && bun run build && bun run typecheck && npx skill-compiler compile --silent",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
+    "lint:console-check": "node scripts/pre-commit-check-console.js",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "test": "bun test",
@@ -47,7 +48,8 @@
     "agent:docs:check": "npx skill-compiler compile --check",
     "agent:docs:suggest": "npx skill-compiler suggest",
     "agent:docs:sync": "npx skill-compiler sync",
-    "postinstall": "npx skill-compiler compile --silent"
+    "lint:unguarded-console": "eslint --config .eslintrc.no-unguarded-console.js",
+    "precommit": "node scripts/pre-commit-check-console.js"
   },
   "keywords": [
     "opencode",
