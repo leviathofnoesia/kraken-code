@@ -1,3 +1,9 @@
+# REDACT SECRETS CONFIGURATION
+# This file processes replacements from replacements.txt
+# 
+# SECURITY: replacements.txt should NOT be committed to git
+# It is added to .gitignore to prevent accidental secret commits
+
 #!/usr/bin/env python3
 """
 Git filter-repo callback to redact secrets from git history.

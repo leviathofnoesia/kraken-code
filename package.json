@@ -49,7 +49,7 @@
     "agent:docs:suggest": "npx skill-compiler suggest",
     "agent:docs:sync": "npx skill-compiler sync",
     "postinstall": "npx skill-compiler compile --silent",
-    "lint:unguarded-console": "eslint --rule .eslintrc.no-unguarded-console.js",
+    "lint:unguarded-console": "eslint --config .eslintrc.no-unguarded-console.js",
     "precommit": "node scripts/pre-commit-check-console.js"
   },
   "keywords": [
