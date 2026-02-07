@@ -38,6 +38,34 @@ export interface RemoteMcpConfig {
 }
 
 /**
+ * MCP Tool for agent use
+ *
+ * Wraps remote MCP server access as a tool agents can call.
+ * Tools are lazy-loaded and do NOT auto-inject context.
+ */
+export interface MCPTool {
+  /**
+   * Tool identifier (e.g., 'mcp_deepwiki_search')
+   */
+  name: string
+
+  /**
+   * Human-readable description
+   */
+  description: string
+
+  /**
+   * Remote MCP server configuration
+   */
+  mcpConfig: RemoteMcpConfig
+
+  /**
+   * Tool name to call on remote server
+   */
+  toolName: string
+}
+
+/**
  * Websearch Provider Configuration
  */
 export interface WebsearchConfig {
