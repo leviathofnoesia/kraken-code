@@ -1,5 +1,9 @@
 import type { Hooks } from '@opencode-ai/plugin'
+import type { PluginInput } from '@opencode-ai/plugin'
 import type { Part } from '@opencode-ai/sdk'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('session-storage')
 
 export interface SessionStorageHookOptions {
   enabled?: boolean
